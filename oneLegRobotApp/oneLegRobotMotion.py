@@ -8,6 +8,13 @@ import math
 # Import shapes as .obj files
 first_joint_shape = oneLegRobotApp.load_shape('assets/bein - ledd 1 v2.obj')
 
+
+# Import shapes as .obj files
+first_joint_shape_aft = oneLegRobotApp.load_shape('assets/bein - ledd 1 v2.obj')
+second_joint_shape_aft = oneLegRobotApp.load_shape('assets/bein - ledd 2 v2.obj')
+first_joint_shape_fwd = oneLegRobotApp.load_shape('assets/Bein - Ledd 1 v2.obj')
+second_joint_shape_fwd = oneLegRobotApp.load_shape('assets/Bein - Ledd 2 v2.obj')
+
 # Debugging variable
 debugging = bool(True)
 
@@ -45,6 +52,128 @@ x_local = 0
 y_local = 0
 z_local = 0
 
+
+class OneLegRobot(agxSDK.Assembly):
+
+    def __init__(self, num_robots: int = 1):
+        super().__init__()
+
+        self.jointCon = []  # type: list[agx.Hinge]
+        self.forceFeedback = []  # type: list[agx.RigidBody]
+        self.len = 0
+
+        self.material = agx.Material("robot_material{}".format(self.getUuid().__str__))
+
+        def connect(rb1: agx.RigidBody, rb2: agx.RigidBody):
+            axis = agx.Vec3(0, 0, 0)
+            pos = agx.Vec3(0, 0, 0,)
+
+            hinge = oneLegRobotApp.create_constraint(pos=pos, axis=axis, c=agx.Hinge, rb1=rb1, rb2=rb2)  # type: agx.Hinge
+            hinge.setCompliance(1E-12)
+            hinge.getMotor1D().setEnable(True)
+            hinge.getMotor1D().setCompliance(1E-12)
+            hinge.getLock1D().setEnable(False)
+            hinge.getRange1D().setEnable(True)
+            hinge.getRange1D().setRange(-math.pi / 2, math.pi)
+            self.add(hinge)
+            self.jointCon.append(hinge)
+
+        # def add(part):
+        #     self.len += part.len
+        #     self.add(part)
+        #
+        # last_part = None
+
+        #testRobotLeg = OneLegRobotAssembly(self.material)
+        self.floor = OneLegRobotAssembly(self.material).create_floor()
+
+        self.first_joint_geometry_aft = OneLegRobotAssembly(self.material).create_section(20,-180/2,440,0,0,math.pi / 2, first_joint_shape_aft)
+        self.second_joint_geometry_aft = OneLegRobotAssembly(self.material).create_section(0,-180/2,320,0,0,math.pi / 2, second_joint_shape_aft)
+
+        self.first_joint_geometry_fwd = OneLegRobotAssembly(self.material).create_section(0,180/2,440,0,0,math.pi / 2, first_joint_shape_fwd)
+        self.second_joint_geometry_fwd = OneLegRobotAssembly(self.material).create_section(-20,180/2,320,0,0,math.pi / 2, second_joint_shape_fwd)
+
+        # Connect joints
+        connect(self.first_joint_geometry_aft, self.second_joint_geometry_aft)
+        connect(self.first_joint_geometry_fwd, self.second_joint_geometry_fwd)
+
+        # Build the robot
+        oneLegRobotApp.add(self.floor)
+        self.second_joint_geometry_aft.setParentFrame(self.first_joint_geometry_aft.getFrame())
+        self.second_joint_geometry_fwd.setParentFrame(self.first_joint_geometry_fwd.getFrame())
+        oneLegRobotApp.add(self.first_joint_geometry_aft)
+        oneLegRobotApp.add(self.second_joint_geometry_aft)
+        oneLegRobotApp.add(self.first_joint_geometry_fwd)
+        oneLegRobotApp.add(self.second_joint_geometry_fwd)
+
+
+        # Arrange camera to be centered on floor
+        oneLegRobotApp.init_camera(eye=agx.Vec3(800, 0, 800), center=self.floor.getPosition())
+
+
+        #self.first_joint_geometry = agx.RigidBody(agxCollide.Geometry(first_joint_shape.deepCopy()))
+        #self.first_joint_geometry.setEnableCollisions(True)
+        #oneLegRobotApp.create_visual(self.first_joint_geometry, agxRender.Color.Black())
+        #self.bottom = agx.RigidBody
+
+    def get_contacts(self, contacts=None) -> list:
+        if contacts is None:
+            contacts = []
+        contacts.clear()
+        for force in self.forceFeedback:  # type: agx.RigidBody
+            c = oneLegRobotApp.get_contacts(force)
+            contacts.append(c)
+        return contacts
+
+    def get_force_magnitude_at(self, intermediate_index):
+        return oneLegRobotApp.get_sum_force_magnitude(self.forceFeedback[intermediate_index])
+
+    def set_hinge_compliance(self, compliance):
+        for joint in self.jointCon:
+            joint.getMotor1D().setCompliance(compliance)
+
+class OneLegRobotAssembly(agxSDK.Assembly):
+
+    def __init__(self, material: agx.Material = None):
+        super().__init__()
+
+        # Create the rigid body of the robot
+        self.floor = self.create_floor()
+        self.first_joint_geometry_aft = self.create_section(20,0,340,0,0,math.pi / 2, first_joint_shape_aft)
+        self.second_joint_geometry_aft = self.create_section(0,0,220,0,0,math.pi / 2, second_joint_shape_aft)
+
+        # Build the robot
+        # oneLegRobotApp.add(self.floor)
+        # oneLegRobotApp.add(self.first_joint_geometry_aft)
+        # oneLegRobotApp.add(self.second_joint_geometry_aft)
+
+    def create_floor(self):
+        w = 200
+        b = 200
+        h = 10
+        # floor = agxCollide.Geometry(agxCollide.Box(2.5, 0.5, h), agx.AffineMatrix4x4.translate(0, 0, -h))
+
+        floor = agxCollide.Geometry(agxCollide.Box(w, b, h))
+        floor.setPosition(0, 0, 0)
+        floor.setRotation(agx.EulerAngles(0, 0, 0))
+        floor.setEnableCollisions(True)
+        rigidBody = agx.RigidBody(floor)
+        rigidBody.setMotionControl(agx.RigidBody.STATIC)
+        oneLegRobotApp.create_visual(rigidBody, diffuse_color=agxRender.Color.Green())
+        return floor
+
+    def create_section(self, x, y, z, rotx, roty, rotz, path):
+        geometry = agxCollide.Geometry(path.deepCopy(),
+                                       agx.AffineMatrix4x4.translate(x, y, z))
+        geometry.setLocalRotation(agx.EulerAngles(rotx, roty, rotz))
+        geometry.setEnableCollisions(True)
+        rigidBody = agx.RigidBody(geometry)
+        rigidBody.setMotionControl(agx.RigidBody.DYNAMICS)
+        oneLegRobotApp.create_visual(rigidBody, agxRender.Color.Red())
+        return rigidBody
+
+
+
 class OneLegRobotMotion(agxSDK.StepEventListener):
     Atest = 0
     # def __init__(self, oneLegRobot):
@@ -64,14 +193,36 @@ def calculate_new_angle_aft_joint():
     aftMotorAngle = oneLegRobotApp.aftMotorAngle
 
 def calculate_motor_angle(x, y):
-
-
     aft_motor_angle = calculate_motor_angle_aft(x, y)
     fwd_motor_angle = calculate_motor_angle_fwd(x, y)
 
     print_debug_list()
 
     return aft_motor_angle
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
