@@ -148,7 +148,7 @@ def create_joints():
     hinge3.setCompliance(1E-12)
     hinge3.getMotor1D().setCompliance(1E-10)
     hinge3.getMotor1D().setEnable(False)
-    hinge3.getLock1D().setEnable(False)
+    hinge3.getLock1D().setEnable(True)
     hinge3.getRange1D().setRange(0, math.pi/32)
     oneLegRobotApp.sim().add(hinge3)
 
@@ -189,8 +189,8 @@ def create_joints():
     oneLegRobotApp.sim().add(hinge5)
 
     # Make the first motor swing back and forth
-    #speed_controller = MotorSpeedController(hinge1.getMotor1D(), 1, 2, aftUpper, fwdUpper)
-    #oneLegRobotApp.sim().add(speed_controller)
+    speed_controller_aft = MotorSpeedControllerAft(hinge1, hinge3, 1, 2, aftUpper, fwdUpper, posUpperAft, posUpperFwd)
+    oneLegRobotApp.sim().add(speed_controller_aft)
 
 
     if (debugging):
@@ -228,41 +228,81 @@ def build_scene():
     # Arrange camera to be centered on floor
     oneLegRobotApp.init_camera(eye=agx.Vec3(20, 20, 30), center=floor.getPosition())
 
-class MotorSpeedController(agxSDK.StepEventListener):
-    def __init__(self, motor, speed, interval, rb1, rb2):
+class MotorSpeedControllerAft(agxSDK.StepEventListener):
+    def __init__(self, motorAft, motorFwd, speed, interval, rb1, rb2, initPosRb1, initPosRb2):
         super().__init__(agxSDK.StepEventListener.PRE_STEP)
 
         # Enable the motor and set the initial speed
-        motor.setEnable(True)
-        motor.setSpeed(speed)
+        #motor.getMotor1D().setEnable(True)
+        #motor.getMotor1D().setSpeed(speed)
 
         # Assign some variables that the listener needs
         self.interval = interval
         self.speed = speed
         self.last = 0
-        self.motor = motor
+        self.motorAft = motorAft
+        self.motorFwd = motorFwd
+        self.step = 0
+
+        # Aft section
         self.rb1 = rb1
+        self.initPosRb1 = initPosRb1
+        self.initAftX = self.initPosRb1[0]
+        self.initAftY = self.initPosRb1[1]
+        self.initAftZ = self.initPosRb1[2]
+
+        # Forward section
         self.rb2 = rb2
+        self.initPosRb2 = initPosRb2
+        self.initFwdX = self.initPosRb2[0]
+        self.initFwdY = self.initPosRb2[1]
+        self.initFwdZ = self.initPosRb2[2]
 
     def pre(self, time):
         # Time to change direction
 
-        if time - self.last >= self.interval:
-            self.last = time
-            self.speed = -self.speed
-            self.motor.setSpeed(self.speed)
+        # Count number of steps
+        self.step = self.step + 1
 
-        print("Speed: ", self.speed)
+        # if time - self.last >= self.interval:
+        #     self.last = time
+        #     self.speed = -self.speed
+        #     self.motor.setSpeed(self.speed)
 
+        # print("Speed: ", self.speed)
+
+        print("")
+        print("Loop no.: ", self.step)
+
+        # Aft section
+        print("----- Aft section -----")
         aftSectionPos = self.rb1.getPosition()
         aftX = aftSectionPos[0]
         aftY = aftSectionPos[1]
         aftZ = aftSectionPos[2]
-        print("X: ", aftX)
-        print("Y: ", aftY)
-        print("Z: ", aftZ)
+        diffXAft = self.initAftX - aftX
+        diffYAft = self.initAftY - aftY
+        diffZAft = self.initAftZ - aftZ
+        theta_2_fwd_kin = math.degrees(math.atan(diffZAft / diffXAft)) + 90
+        print("X: ", aftX, "     Diff. X: ", diffXAft)
+        print("Y: ", aftY, "     Diff. Y: ", diffYAft)
+        print("Z: ", aftZ, "     Diff. Z: ", diffZAft)
+        print("Theta_2: ", theta_2_fwd_kin)
 
-
+        # Fwd section
+        print("----- Fwd section -----")
+        fwdSectionPos = self.rb2.getPosition()
+        fwdX = fwdSectionPos[0]
+        fwdY = fwdSectionPos[1]
+        fwdZ = fwdSectionPos[2]
+        diffXFwd = self.initFwdX - fwdX
+        diffYFwd = self.initFwdY - fwdY
+        diffZFwd = self.initFwdZ - fwdZ
+        theta_6_fwd_kin = math.degrees(math.atan(diffZFwd / diffXFwd)) + 90
+        print("X: ", fwdX, "     Diff. X: ", diffXFwd)
+        print("Y: ", fwdY, "     Diff. Y: ", diffYFwd)
+        print("Z: ", fwdZ, "     Diff. Z: ", diffZFwd)
+        print("Theta_6: ", theta_6_fwd_kin)
 
 def get_end_effector_pos():
     x = 0
