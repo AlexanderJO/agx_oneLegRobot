@@ -282,6 +282,7 @@ class MotorSpeedControllerAft(agxSDK.StepEventListener):
         self.initAftX = self.initPosRb1[0]
         self.initAftY = self.initPosRb1[1]
         self.initAftZ = self.initPosRb1[2]
+        self.angleAft = None
 
         # Forward section
         self.rb2 = rb2
@@ -289,34 +290,33 @@ class MotorSpeedControllerAft(agxSDK.StepEventListener):
         self.initFwdX = self.initPosRb2[0]
         self.initFwdY = self.initPosRb2[1]
         self.initFwdZ = self.initPosRb2[2]
+        self.angleFwd = None
+
+    def get_angle_aft(self):
+        return self.angleAft
+
+    def get_angle_fwd(self):
+        return self.angleFwd
 
     def pre(self, time):
-        # Time to change direction
-
         # Count number of steps
         self.step = self.step + 1
-
-        # if time - self.last >= self.interval:
-        #     self.last = time
-        #     self.speed = -self.speed
-        #     self.motor.setSpeed(self.speed)
-
-        # print("Speed: ", self.speed)
 
         print("")
         print("Loop no.: ", self.step)
 
         # Aft section
         print("----- Aft section -----")
-        print("Angle aft:     ", math.degrees(self.motorAft.getAngle()))
-        aftSectionPos = self.rb1.getPosition()
-        aftX = aftSectionPos[0]
-        aftY = aftSectionPos[1]
-        aftZ = aftSectionPos[2]
-        diffXAft = self.initAftX - aftX
-        diffYAft = self.initAftY - aftY
-        diffZAft = self.initAftZ - aftZ
-        theta_2_fwd_kin = math.degrees(math.atan(diffZAft / diffXAft)) + 90
+        self.angleAft = math.degrees(self.motorAft.getAngle())
+        print("Angle aft:     ", self.angleAft)
+        #aftSectionPos = self.rb1.getPosition()
+        #aftX = aftSectionPos[0]
+        #aftY = aftSectionPos[1]
+        #aftZ = aftSectionPos[2]
+        #diffXAft = self.initAftX - aftX
+        #diffYAft = self.initAftY - aftY
+        #diffZAft = self.initAftZ - aftZ
+        #theta_2_fwd_kin = math.degrees(math.atan(diffZAft / diffXAft)) + 90
         #print("X: ", aftX, "     Diff. X: ", diffXAft)
         #print("Y: ", aftY, "     Diff. Y: ", diffYAft)
         #print("Z: ", aftZ, "     Diff. Z: ", diffZAft)
