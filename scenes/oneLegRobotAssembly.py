@@ -183,18 +183,35 @@ def create_joints():
     f8.setLocalTranslate(0, 0, -sizeUpper[2]*2-reducedLength/2)
     f8.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
 
-    hinge5 = agx.Hinge(aftLower, f7, fwdLower, f8)
-    hinge5.getRange1D().setRange(-math.pi/4, math.pi/4)
-    hinge5.setCompliance(1E-12)
-    hinge5.getMotor1D().setCompliance(1E-10)
-    hinge5.getMotor1D().setEnable(False)
-    hinge5.getLock1D().setEnable(False)
-
+    # --------- Create end effector -----------
+    # Create hinge for end effector between lower aft and forward section.
+    hinge5Range = [-math.pi/4, math.pi/4]
+    hinge5 = create_hinge_2RB(aftLower, f7, fwdLower, f8, hinge5Range)
     oneLegRobotApp.sim().add(hinge5)
+
+    # Create end-effector point as ball.
+    f9 = agx.Frame()
+    f9.setLocalTranslate(0, 0, 0)
+    f9.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+
+    #foot = create_sphere([0, 0, 1], 0.1)
+    #hinge6 = create_hinge_2RB(foot, f7, foot, f8, [-math.pi/4, math.pi/4])
+    #oneLegRobotApp.sim().add(foot)
+    #oneLegRobotApp.sim().add(hinge6)
+    hinge6Range = [-math.pi/4, math.pi/4]
+    foot = create_sphere([0, 0, 1], 0.1)
+    oneLegRobotApp.sim().add(foot)
+    hinge6 = create_hinge_2RB(aftLower, f7, foot, f9, hinge6Range)
+    oneLegRobotApp.sim().add(hinge6)
+
+    #f1Pos = frameReader(f1)
+    #oneLegRobotApp.sim().add(f1Pos)
 
     # Make the first motor swing back and forth
     speed_controller_aft = MotorSpeedControllerAft(hinge1, hinge3, 1, 2, aftUpper, fwdUpper, posUpperAft, posUpperFwd)
     oneLegRobotApp.sim().add(speed_controller_aft)
+
+    print("Test angle aft: ", speed_controller_aft.get_angle_aft())
 
 
     if (debugging):
