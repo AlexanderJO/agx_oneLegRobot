@@ -161,20 +161,12 @@ def create_joints():
     f6.setLocalTranslate(0, 0, sizeLower[2])
     f6.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
 
-    # Create hinge
+    # Create hinge between upper and lower fwd section
     hinge4Range = [-math.pi/4, math.pi/4]
-    hinge4 = createHinge(fwdUpper, f5, fwdLower, f6, hinge4Range)
+    hinge4 = create_hinge_2RB(fwdUpper, f5, fwdLower, f6, hinge4Range)
     oneLegRobotApp.sim().add(hinge4)
 
-    #hinge4 = agx.Hinge(fwdUpper, f5, fwdLower, f6)
-    #hinge4.getRange1D().setRange(-math.pi/4, math.pi/4)
-    #hinge4.setCompliance(1E-12)
-    #hinge4.getMotor1D().setCompliance(1E-10)
-    #hinge4.getMotor1D().setEnable(False)
-    #hinge4.getLock1D().setEnable(False)
-    #hinge4.getRange1D().setRange(0, math.pi/32)
-
-    # Create end effector joint
+    # Create end effector frame for lower aft and forward section.
     f7 = agx.Frame()
     f7.setLocalTranslate(0, 0, -sizeUpper[2]*2-reducedLength/2)
     f7.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
