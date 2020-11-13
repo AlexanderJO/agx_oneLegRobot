@@ -324,15 +324,16 @@ class MotorSpeedControllerAft(agxSDK.StepEventListener):
 
         # Fwd section
         print("----- Fwd section -----")
-        print("Angle fwd:     ", math.degrees(self.motorFwd.getAngle()))
-        fwdSectionPos = self.rb2.getPosition()
-        fwdX = fwdSectionPos[0]
-        fwdY = fwdSectionPos[1]
-        fwdZ = fwdSectionPos[2]
-        diffXFwd = self.initFwdX - fwdX
-        diffYFwd = self.initFwdY - fwdY
-        diffZFwd = self.initFwdZ - fwdZ
-        theta_6_fwd_kin = math.degrees(math.atan(diffZFwd / diffXFwd)) + 90
+        self.angleFwd = math.degrees(self.motorFwd.getAngle())
+        print("Angle fwd:     ", self.angleFwd)
+        #fwdSectionPos = self.rb2.getPosition()
+        #fwdX = fwdSectionPos[0]
+        #fwdY = fwdSectionPos[1]
+        #fwdZ = fwdSectionPos[2]
+        #diffXFwd = self.initFwdX - fwdX
+        #diffYFwd = self.initFwdY - fwdY
+        #diffZFwd = self.initFwdZ - fwdZ
+        #theta_6_fwd_kin = math.degrees(math.atan(diffZFwd / diffXFwd)) + 90
         #print("X: ", fwdX, "     Diff. X: ", diffXFwd)
         #print("Y: ", fwdY, "     Diff. Y: ", diffYFwd)
         #print("Z: ", fwdZ, "     Diff. Z: ", diffZFwd)
