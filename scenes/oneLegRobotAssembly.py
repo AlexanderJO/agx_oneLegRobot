@@ -110,49 +110,33 @@ def create_joints():
     f3.setLocalTranslate(0, 0, sizeLower[2])
     f3.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
 
-    hinge2 = agx.Hinge(aftUpper, f2, aftLower, f3)
-    hinge2.setCompliance(1E-12)
-    hinge2.getMotor1D().setCompliance(1E-10)
-    hinge2.getMotor1D().setEnable(False)
-    hinge2.getLock1D().setEnable(False)
-    hinge2.getRange1D().setRange(0, math.pi/32)
+    # Create hinge between upper and lower fwd section
+    hinge2Range = [-math.pi/4, math.pi/4]
+    hinge2 = create_hinge_2RB(aftUpper, f2, aftLower, f3, hinge2Range)
     oneLegRobotApp.sim().add(hinge2)
-    #print("Distance: ", posLowerAft[2] - posUpperAft[2])
-    #print("Length L2: ", L_2)
-    #print("Length L1: ", UPPER_LEG_SECTION_SIZE[2])
-    #print("Length L1: ", aftUpper.getPosition())
-    #print("Length L2: ", LOWER_LEG_SECTION_SIZE[2])
-    #print("Length L2: ", aftLower.getPosition())
-    print("Pos L2: ", aftUpper.getPosition())
 
+    # --------- Create fwd section -----------
     posUpperFwd = [-L_5*MODEL_SCALE, 0, 3.1 + increaseHeight]
     posLowerFwd = [-L_5*MODEL_SCALE, 0, 1.3 + increaseHeight-1]
-    print("Spacing: ", -L_5*MODEL_SCALE)
-    fwdUpper, fwdLower = create_bodies_aft(position1=posUpperFwd, position2=posLowerFwd,
+    fwdUpper, fwdLower = create_bodies(position1=posUpperFwd, position2=posLowerFwd,
                                            sizeUpper=sizeUpper, sizeLower=sizeLower, scale=MODEL_SCALE, reducedLength=reducedLength)
-    print("Fwd pos: ", fwdUpper.getPosition())
-    print("Aft pos: ", aftUpper.getPosition())
 
     # Add upper and lower sections of aft part of robot to simulation
     oneLegRobotApp.sim().add(fwdUpper)
     oneLegRobotApp.sim().add(fwdLower)
 
-    # Create frame
+    # Create frame for forward motor
     f4 = agx.Frame()
     f4.setLocalTranslate(0, 0, sizeUpper[2] - reducedLength / 2)
     f4.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
 
-    # Create joint to forward motor
-    hinge3 = agx.Hinge(fwdUpper, f4)
-    hinge3.getRange1D().setRange(-math.pi/4, math.pi/4)
-    hinge3.setCompliance(1E-12)
-    hinge3.getMotor1D().setCompliance(1E-10)
-    hinge3.getMotor1D().setEnable(False)
-    hinge3.getLock1D().setEnable(True)
-    hinge3.getRange1D().setRange(0, math.pi/32)
+    # Create hinge to forward motor
+    hinge3Range = [-math.pi/4, math.pi/4]
+    hinge3 = create_hinge_1RB(fwdUpper, f4, hinge3Range)
+    hinge3.getLock1D().setEnable(False)
     oneLegRobotApp.sim().add(hinge3)
 
-    # Create joint between upper and lower fwd section
+    # Create frames for upper and lower fwd section
     f5 = agx.Frame()
     f5.setLocalTranslate(0, 0, -sizeUpper[2]-reducedLength/2)
     f5.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
