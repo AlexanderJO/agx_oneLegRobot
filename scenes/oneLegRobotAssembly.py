@@ -72,6 +72,23 @@ def create_bodies_aft(position1, position2, sizeUpper, sizeLower, scale, reduced
 
     return upper, lower
 
+def create_box_mod(size, reducedLength):
+    body = agx.RigidBody()
+    shape = agxCollide.Box(size[0], size[1], size[2]-reducedLength)
+    geometry = agxCollide.Geometry(shape)
+    body.add(geometry)
+
+    return body
+
+def create_sphere(position, diam):
+    body = agx.RigidBody()
+    shape = agxCollide.Sphere(diam)
+    geometry = agxCollide.Geometry(shape)
+    body.add(geometry)
+    body.setPosition(position[0], position[1], position[2])
+
+    return body
+
 def create_joints():
     reducedLength = 0.5
     increaseHeight = 2.8
