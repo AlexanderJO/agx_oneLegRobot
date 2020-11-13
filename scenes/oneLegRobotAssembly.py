@@ -152,7 +152,7 @@ def create_joints():
     hinge3.getRange1D().setRange(0, math.pi/32)
     oneLegRobotApp.sim().add(hinge3)
 
-    # Create joint between upper and lower aft section
+    # Create joint between upper and lower fwd section
     f5 = agx.Frame()
     f5.setLocalTranslate(0, 0, -sizeUpper[2]-reducedLength/2)
     f5.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
@@ -161,14 +161,18 @@ def create_joints():
     f6.setLocalTranslate(0, 0, sizeLower[2])
     f6.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
 
-    hinge4 = agx.Hinge(fwdUpper, f5, fwdLower, f6)
-    hinge4.getRange1D().setRange(-math.pi/4, math.pi/4)
-    hinge4.setCompliance(1E-12)
-    hinge4.getMotor1D().setCompliance(1E-10)
-    hinge4.getMotor1D().setEnable(False)
-    hinge4.getLock1D().setEnable(False)
-    hinge4.getRange1D().setRange(0, math.pi/32)
+    # Create hinge
+    hinge4Range = [-math.pi/4, math.pi/4]
+    hinge4 = createHinge(fwdUpper, f5, fwdLower, f6, hinge4Range)
     oneLegRobotApp.sim().add(hinge4)
+
+    #hinge4 = agx.Hinge(fwdUpper, f5, fwdLower, f6)
+    #hinge4.getRange1D().setRange(-math.pi/4, math.pi/4)
+    #hinge4.setCompliance(1E-12)
+    #hinge4.getMotor1D().setCompliance(1E-10)
+    #hinge4.getMotor1D().setEnable(False)
+    #hinge4.getLock1D().setEnable(False)
+    #hinge4.getRange1D().setRange(0, math.pi/32)
 
     # Create end effector joint
     f7 = agx.Frame()
@@ -228,6 +232,34 @@ def build_scene():
     # Arrange camera to be centered on floor
     oneLegRobotApp.init_camera(eye=agx.Vec3(20, 20, 30), center=floor.getPosition())
 
+def createHinge(rb1, frame1, rb2, fram2, range):
+    hinge = agx.Hinge(rb1, frame1, rb2, fram2)
+
+    # Sets the angular range of the hinge.
+    hinge.getRange1D().setRange(range[0], range[1])
+
+    # Sets the compliance of the hinge DOF.
+    hinge.setCompliance(1E-12)
+    hinge.getMotor1D().setCompliance(1E-10)
+    hinge.getMotor1D().setEnable(False)
+    hinge.getLock1D().setEnable(False)
+
+    return hinge
+
+#def setComplianceHinge(hinge):
+
+
+class MotorSpeedControllerAft_New(agxSDK.StepEventListener):
+    def __init__(self, hinge1, hinge2):
+        super().__init__(agxSDK.StepEventListener.PRE_STEP)
+
+        # Assign variables necessary for the listener.
+        self.hinge1 = hinge1
+        self.hinge2 = hinge2
+
+    def pre(self, time):
+        A = 0
+
 class MotorSpeedControllerAft(agxSDK.StepEventListener):
     def __init__(self, motorAft, motorFwd, speed, interval, rb1, rb2, initPosRb1, initPosRb2):
         super().__init__(agxSDK.StepEventListener.PRE_STEP)
@@ -276,6 +308,7 @@ class MotorSpeedControllerAft(agxSDK.StepEventListener):
 
         # Aft section
         print("----- Aft section -----")
+        print("Angle aft:     ", math.degrees(self.motorAft.getAngle()))
         aftSectionPos = self.rb1.getPosition()
         aftX = aftSectionPos[0]
         aftY = aftSectionPos[1]
@@ -284,13 +317,14 @@ class MotorSpeedControllerAft(agxSDK.StepEventListener):
         diffYAft = self.initAftY - aftY
         diffZAft = self.initAftZ - aftZ
         theta_2_fwd_kin = math.degrees(math.atan(diffZAft / diffXAft)) + 90
-        print("X: ", aftX, "     Diff. X: ", diffXAft)
-        print("Y: ", aftY, "     Diff. Y: ", diffYAft)
-        print("Z: ", aftZ, "     Diff. Z: ", diffZAft)
-        print("Theta_2: ", theta_2_fwd_kin)
+        #print("X: ", aftX, "     Diff. X: ", diffXAft)
+        #print("Y: ", aftY, "     Diff. Y: ", diffYAft)
+        #print("Z: ", aftZ, "     Diff. Z: ", diffZAft)
+        #print("Theta_2: ", theta_2_fwd_kin)
 
         # Fwd section
         print("----- Fwd section -----")
+        print("Angle fwd:     ", math.degrees(self.motorFwd.getAngle()))
         fwdSectionPos = self.rb2.getPosition()
         fwdX = fwdSectionPos[0]
         fwdY = fwdSectionPos[1]
@@ -299,10 +333,10 @@ class MotorSpeedControllerAft(agxSDK.StepEventListener):
         diffYFwd = self.initFwdY - fwdY
         diffZFwd = self.initFwdZ - fwdZ
         theta_6_fwd_kin = math.degrees(math.atan(diffZFwd / diffXFwd)) + 90
-        print("X: ", fwdX, "     Diff. X: ", diffXFwd)
-        print("Y: ", fwdY, "     Diff. Y: ", diffYFwd)
-        print("Z: ", fwdZ, "     Diff. Z: ", diffZFwd)
-        print("Theta_6: ", theta_6_fwd_kin)
+        #print("X: ", fwdX, "     Diff. X: ", diffXFwd)
+        #print("Y: ", fwdY, "     Diff. Y: ", diffYFwd)
+        #print("Z: ", fwdZ, "     Diff. Z: ", diffZFwd)
+        #print("Theta_6: ", theta_6_fwd_kin)
 
 def get_end_effector_pos():
     x = 0
