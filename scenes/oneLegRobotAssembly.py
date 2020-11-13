@@ -61,13 +61,13 @@ y_local = 0
 z_local = 0
 
 
-def create_bodies_aft(position1, position2, sizeUpper, sizeLower, scale, reducedLength):
-    upper = agx.RigidBody()
-    upper.add(agxCollide.Geometry(agxCollide.Box(sizeUpper[0], sizeUpper[1], sizeUpper[2]-reducedLength)))
+def create_bodies(position1, position2, sizeUpper, sizeLower, scale, reducedLength):
+    # Create upper section.
+    upper = create_box_mod(sizeUpper, reducedLength)
     upper.setPosition(agx.Vec3(position1[0], position1[1], position1[2]))
 
-    lower = agx.RigidBody()
-    lower.add(agxCollide.Geometry(agxCollide.Box(sizeLower[0], sizeLower[1], sizeLower[2]-reducedLength)))
+    # Create lower section.
+    lower = create_box_mod(sizeLower, reducedLength)
     lower.setPosition(agx.Vec3(position2[0], position2[1], position2[2]))
 
     return upper, lower
