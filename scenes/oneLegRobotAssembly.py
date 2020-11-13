@@ -223,16 +223,59 @@ def build_scene():
     floor = create_floor()
     create_joints()
 
+    # Create moveable floor
+    floor_controller = moveFloorController(floor=floor, movement=[0, 0, 1])
+    oneLegRobotApp.sim().add(floor_controller)
+
     # Rendering details
     oneLegRobotApp.app().getSceneDecorator().setEnableShadows(False)
     oneLegRobotApp.app().setEnableDebugRenderer(True)
 
-    print("Floor pos: ", floor.getPosition())
+    #print("Floor pos: ", floor.getPosition())
 
-    # Arrange camera to be centered on floor
+    # Arrange camera to be centered around center of floor
     oneLegRobotApp.init_camera(eye=agx.Vec3(20, 20, 30), center=floor.getPosition())
 
-def createHinge(rb1, frame1, rb2, fram2, range):
+class frameReader(agxSDK.StepEventListener):
+    def __init__(self, frame):
+        super().__init__(agxSDK.StepEventListener.PRE_STEP)
+
+        self.frame = frame
+
+    def pre(self, time):
+        #framePos = self.frame.getLocalTranslate()
+        print("Frame position: ", self.frame.getTranslate())
+
+class moveFloorController(agxSDK.StepEventListener):
+    def __init__(self, floor, movement):
+        super().__init__(agxSDK.StepEventListener.PRE_STEP)
+
+        self.floor = floor
+        self.interval = 1
+        self.speed = 1
+        self.last = 0
+
+        self._omega = None
+        self._period = None
+        self.set_period(2)
+        self.amplitude = math.radians(35)
+        self._phase = 0
+        self.movement = movement
+
+    def get_period(self):
+        return self._period
+
+    def set_period(self, period: float):
+        f = 1 / period
+        self._period = period
+        self._omega = 2 * math.pi * f
+
+    def pre(self, time):
+        speed = self.amplitude * math.sin(self._omega * time + self._phase)
+        print("Height: ", speed)
+        self.floor.setPosition(speed * self.movement[0], speed * self.movement[1], speed * self.movement[2])
+
+def create_hinge_2RB(rb1, frame1, rb2, fram2, range):
     hinge = agx.Hinge(rb1, frame1, rb2, fram2)
 
     # Sets the angular range of the hinge.
