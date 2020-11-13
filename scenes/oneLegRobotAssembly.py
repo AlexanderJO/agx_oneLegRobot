@@ -462,16 +462,16 @@ def build_aft_part(pos1, pos2):
 
     #return a1_geometry
 
-def create_box(pos, size):
-    #size = [UPPER_LEG_SECTION_WIDTH, UPPER_LEG_SECTION_BREADTH, L_1]
-    #pos = [0, 0, 0]
-    rigidBody = agx.RigidBody()
-    geometry = agxCollide.Geometry(
-        agxCollide.Box(size[0] * MODEL_SCALE, size[1] * MODEL_SCALE, size[2] * MODEL_SCALE))
-    rigidBody.add(geometry)
-    rigidBody.setPosition(agx.Vec3(pos[0], pos[1], pos[2]))
-
-    return rigidBody
+# def create_box(pos, size):
+#     #size = [UPPER_LEG_SECTION_WIDTH, UPPER_LEG_SECTION_BREADTH, L_1]
+#     #pos = [0, 0, 0]
+#     rigidBody = agx.RigidBody()
+#     geometry = agxCollide.Geometry(
+#         agxCollide.Box(size[0] * MODEL_SCALE, size[1] * MODEL_SCALE, size[2] * MODEL_SCALE))
+#     rigidBody.add(geometry)
+#     rigidBody.setPosition(agx.Vec3(pos[0], pos[1], pos[2]))
+#
+#     return rigidBody
 
 ########################################
 # Our function which creates the scene
