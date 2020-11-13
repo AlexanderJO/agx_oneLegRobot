@@ -206,11 +206,9 @@ def create_joints():
         staticAbove2.setLocalPosition(0, -2.5, 7 - 1.2 - 2.4 - 2.4 / 2)
         oneLegRobotApp.sim().add(staticAbove2)
 
-
-
 def create_floor():
     floor = agxCollide.Geometry(agxCollide.Box(10, 10, 0.1))
-    floor.setPosition(0, 0, -0.1)
+    floor.setPosition(0, 0, -0.3)
     oneLegRobotApp.sim().add(floor)
 
     return floor
