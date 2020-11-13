@@ -90,35 +90,33 @@ def create_sphere(position, diam):
     return body
 
 def create_joints():
+    # Initial setup
     reducedLength = 0.5
     increaseHeight = 2.8
     sizeUpper = UPPER_LEG_SECTION_SIZE
     sizeLower = LOWER_LEG_SECTION_SIZE
+
+    # --------- Create aft section -----------
     posUpperAft = [L_5*MODEL_SCALE, 0, 3.1 + increaseHeight]
     posLowerAft = [L_5*MODEL_SCALE, 0, 1.3 + increaseHeight-1]
-    aftUpper, aftLower = create_bodies_aft(position1=posUpperAft, position2=posLowerAft,
+    aftUpper, aftLower = create_bodies(position1=posUpperAft, position2=posLowerAft,
                                            sizeUpper=sizeUpper, sizeLower=sizeLower, scale=MODEL_SCALE, reducedLength=reducedLength)
 
     # Add upper and lower sections of aft part of robot to simulation
     oneLegRobotApp.sim().add(aftUpper)
     oneLegRobotApp.sim().add(aftLower)
 
-    # Create frame
+    # Create frame for aft motor
     f1 = agx.Frame()
     f1.setLocalTranslate(0, 0, sizeUpper[2]-reducedLength/2)
     f1.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
 
-    # Create joint to aft motor
-    hinge1 = agx.Hinge(aftUpper, f1)
-    hinge1.setCompliance(1E-12)
-    hinge1.getMotor1D().setCompliance(1E-10)
-    hinge1.getMotor1D().setEnable(False)
-    hinge1.getLock1D().setEnable(False)
-    hinge1.getRange1D().setRange(-math.pi/4, math.pi/4)
+    # Create hinge to aft motor
+    hinge1Range = [-math.pi / 4, math.pi / 4]
+    hinge1 = create_hinge_1RB(aftUpper, f1, hinge1Range)
     oneLegRobotApp.sim().add(hinge1)
 
-    # Create joint between upper and lower aft section
-    #distanceAftSection = (aftLower.getPosition() - aftUpper.getPosition()).length()
+    # Create frames for upper and lower aft section
     f2 = agx.Frame()
     f2.setLocalTranslate(0, 0, -sizeUpper[2]-reducedLength/2)
     f2.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
