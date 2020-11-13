@@ -246,8 +246,19 @@ def createHinge(rb1, frame1, rb2, fram2, range):
 
     return hinge
 
-#def setComplianceHinge(hinge):
+def create_hinge_1RB(rb1, frame1, range):
+    hinge = agx.Hinge(rb1, frame1)
 
+    # Sets the angular range of the hinge.
+    hinge.getRange1D().setRange(range[0], range[1])
+
+    # Sets the compliance of the hinge DOF.
+    hinge.setCompliance(1E-12)
+    hinge.getMotor1D().setCompliance(1E-10)
+    hinge.getMotor1D().setEnable(False)
+    hinge.getLock1D().setEnable(False)
+
+    return hinge
 
 class MotorSpeedControllerAft_New(agxSDK.StepEventListener):
     def __init__(self, hinge1, hinge2):
