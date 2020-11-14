@@ -180,30 +180,28 @@ def create_joints():
     hinge5 = create_hinge_2RB(aftLower, f7, fwdLower, f8, hinge5Range)
     oneLegRobotApp.sim().add(hinge5)
 
-    # Create end-effector point as ball.
+    # Create frame for end-effector point as ball.
     f9 = agx.Frame()
     f9.setLocalTranslate(0, 0, 0)
     f9.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
 
-    #foot = create_sphere([0, 0, 1], 0.1)
-    #hinge6 = create_hinge_2RB(foot, f7, foot, f8, [-math.pi/4, math.pi/4])
-    #oneLegRobotApp.sim().add(foot)
-    #oneLegRobotApp.sim().add(hinge6)
+    # Create hinge for ball end-effector point
     hinge6Range = [-math.pi/4, math.pi/4]
     foot = create_sphere([0, 0, 1], 0.1)
     oneLegRobotApp.sim().add(foot)
     hinge6 = create_hinge_2RB(aftLower, f7, foot, f9, hinge6Range)
     oneLegRobotApp.sim().add(hinge6)
 
-    #f1Pos = frameReader(f1)
-    #oneLegRobotApp.sim().add(f1Pos)
+    # Read current frame position
+    f1Pos = frameReader(f1)
+    oneLegRobotApp.sim().add(f1Pos)
 
     # Make the first motor swing back and forth
     speed_controller_aft = MotorSpeedControllerAft(hinge1, hinge3, 1, 2, aftUpper, fwdUpper, posUpperAft, posUpperFwd)
     oneLegRobotApp.sim().add(speed_controller_aft)
 
-    print("Test angle aft: ", speed_controller_aft.get_angle_aft())
-
+    def get_hinge1():
+        return hinge1
 
     if (debugging):
         staticAbove1 = agxCollide.Geometry(agxCollide.Box(1.8, 1.8, -1.2))
@@ -223,11 +221,9 @@ def create_floor():
 
 
 def build_scene():
-
-
     # Create scenes
     floor = create_floor()
-    create_joints()
+    jointBuilder = create_joints()
 
     # Create moveable floor
     floor_controller = moveFloorController(floor=floor, movement=[0, 0, 1])
@@ -247,10 +243,11 @@ class frameReader(agxSDK.StepEventListener):
         super().__init__(agxSDK.StepEventListener.PRE_STEP)
 
         self.frame = frame
+        self.framePos = None
 
     def pre(self, time):
-        #framePos = self.frame.getLocalTranslate()
-        print("Frame position: ", self.frame.getTranslate())
+        self.framePos = self.frame.getTranslate()
+        print("Frame position: ", self.framePos)
 
 class moveFloorController(agxSDK.StepEventListener):
     def __init__(self, floor, movement):
@@ -278,7 +275,6 @@ class moveFloorController(agxSDK.StepEventListener):
 
     def pre(self, time):
         speed = self.amplitude * math.sin(self._omega * time + self._phase)
-        print("Height: ", speed)
         self.floor.setPosition(speed * self.movement[0], speed * self.movement[1], speed * self.movement[2])
 
 def create_hinge_2RB(rb1, frame1, rb2, fram2, range):
