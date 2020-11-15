@@ -38,9 +38,9 @@ LOWER_LEG_SECTION_SIZE = [LOWER_LEG_SECTION_WIDTH*MODEL_SCALE, LOWER_LEG_SECTION
 
 # Variables for kinematic model
 x_A1 = 0
-y_A1 = 0
+z_A1 = 0
 x_A2 = 0
-y_A2 = 0
+z_A2 = 0
 theta_1 = 0
 theta_2 = 0
 theta_3 = 0
