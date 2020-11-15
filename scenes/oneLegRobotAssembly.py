@@ -53,8 +53,8 @@ theta_9 = 0
 theta_10 = 0
 
 # Variables
-angleMotorAft = None
-angleMotorFwd = None
+angle_motor_aft = None
+angle_motor_fwd = None
 
 # Local coordinate system from center equally spaced from BLDC motor A1 and A2
 x_local = 0
