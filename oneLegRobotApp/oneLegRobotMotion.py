@@ -29,9 +29,9 @@ restY = 150                 # Initial resting y position of foot
 
 # Variables for kinematic model
 x_A1 = 0
-y_A1 = 0
+z_A1 = 0
 x_A2 = 0
-y_A2 = 0
+z_A2 = 0
 theta_1 = 0
 theta_2 = 0
 theta_3 = 0
@@ -228,7 +228,7 @@ def calculate_motor_angle(x, y):
 
 def calculate_motor_angle_aft(x, y):
     # Calculate for aft motor
-    global x_A1, y_A1, theta_1, theta_2, theta_3, theta_4, theta_9
+    global x_A1, z_A1, theta_1, theta_2, theta_3, theta_4, theta_9
     x_A1 = restX + x
     y_A1 = restY - y
     theta_1 = 180 - math.degrees(math.atan2(y_A1, x_A1))
@@ -253,7 +253,7 @@ def calculate_motor_angle_aft(x, y):
 
 def calculate_motor_angle_fwd(x, y):
     # Calculate for fwd motor
-    global x_A2, y_A2, theta_5, theta_6, theta_7, theta_8, theta_10
+    global x_A2, z_A2, theta_5, theta_6, theta_7, theta_8, theta_10
     x_A2 = restX - x
     y_A2 = restY - y
     theta_5 = 180 - math.degrees(math.atan2(y_A2, x_A2))
@@ -276,7 +276,7 @@ def print_debug_list():
     if get_debug():
         print("---- DATA FOR AFT SECTION ----")
         print("x_A1 pos: ", x_A1)
-        print("y_A1 pos: ", y_A1)
+        print("y_A1 pos: ", z_A1)
         print("Angle theta_1 is: ", theta_1)
         print("Angle theta_4 is: ", theta_4)
         print("Angle theta_9 is: ", theta_9)
@@ -287,7 +287,7 @@ def print_debug_list():
     if get_debug():
         print("---- DATA FOR FWD SECTION ----")
         print("x_A2 pos: ", x_A2)
-        print("y_A2 pos: ", y_A2)
+        print("y_A2 pos: ", z_A2)
         print("Angle theta_5 is: ", theta_5)
         print("Angle theta_8 is: ", theta_8)
         print("Angle theta_10 is: ", theta_10)
