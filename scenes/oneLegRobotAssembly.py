@@ -2,6 +2,7 @@ import agx
 import agxCollide
 import agxSDK
 import agxRender
+from agxRender import Color
 
 import math
 import oneLegRobotApp
