@@ -317,9 +317,14 @@ class MotorSpeedControllerAft_New(agxSDK.StepEventListener):
     def pre(self, time):
         A = 0
 
-class MotorSpeedControllerAft(agxSDK.StepEventListener):
-    def __init__(self, motorAft, motorFwd, speed, interval, rb1, rb2, initPosRb1, initPosRb2):
+class MotorSpeedController(agxSDK.StepEventListener):
+    def __init__(self, motor_aft, motor_fwd, speed, interval, rb1, rb2, init_pos_rb1, init_pos_rb2):
         super().__init__(agxSDK.StepEventListener.PRE_STEP)
+
+        # Desired end-effector position
+        self.x = 0
+        self.y = 0
+        self.z = 0
 
         # Enable the motor and set the initial speed
         #motor.getMotor1D().setEnable(True)
