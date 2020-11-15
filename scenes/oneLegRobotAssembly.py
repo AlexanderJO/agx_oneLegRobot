@@ -455,9 +455,18 @@ class FrameReader(agxSDK.StepEventListener):
 
     def pre(self, time):
         self.framePos = self.frame.getTranslate()
-        print("Frame position: ", self.framePos)
+        #print("Frame position: ", self.framePos)
 
-class moveFloorController(agxSDK.StepEventListener):
+
+class MoveFloorController(agxSDK.StepEventListener):
+    """
+    Moveable floor controller to move floor in either x-, y- or z-direction or a combination of them.
+
+    floor : agx.Geometry()
+        Floor object
+    movement : List (x, y, z)
+        List of movements in x-, y- and z-direction
+    """
     def __init__(self, floor, movement):
         super().__init__(agxSDK.StepEventListener.PRE_STEP)
 
