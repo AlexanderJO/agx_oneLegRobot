@@ -26,7 +26,7 @@ L_3 = L_1                   # Section length of first fwd section
 L_4 = L_2                   # Section length of second fwd section
 L_5 = int(180)              # Spacing between BLDC motor A1 (aft) and A2 (fwd)
 restX = L_5 / 2             # Initial resting x position of foot
-restY = 150                 # Initial resting y position of foot
+restZ = 150                 # Initial resting y position of foot
 
 # Robot leg dimensions for width and breadth.
 UPPER_LEG_SECTION_WIDTH = 20
