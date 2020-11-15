@@ -401,7 +401,28 @@ def get_end_effector_pos():
 
     return x
 
+def print_debug_list():
+    if get_debug():
+        print("---- DATA FOR AFT SECTION ----")
+        print("x_A1 pos: ", x_A1)
+        print("y_A1 pos: ", z_A1)
+        print("Angle theta_1 is: ", theta_1)
+        print("Angle theta_4 is: ", theta_4)
+        print("Angle theta_9 is: ", theta_9)
+        print("Angle theta_3 is: ", theta_3)
+        print("Angle theta_2 is: ", theta_2)
+        print("")
 
+    if get_debug():
+        print("---- DATA FOR FWD SECTION ----")
+        print("x_A2 pos: ", x_A2)
+        print("y_A2 pos: ", z_A2)
+        print("Angle theta_5 is: ", theta_5)
+        print("Angle theta_8 is: ", theta_8)
+        print("Angle theta_10 is: ", theta_10)
+        print("Angle theta_7 is: ", theta_7)
+        print("Angle theta_6 is: ", theta_6)
+        print("")
 
 
 
