@@ -524,6 +524,225 @@ def create_hinge_1RB(rb1, frame1, range):
 
 class MotorSpeedControllerAft_New(agxSDK.StepEventListener):
     def __init__(self, hinge1, hinge2):
+class EndEffectorController(agxSDK.StepEventListener):
+
+    def __init__(self, motor_aft, motor_fwd, error, speed, interval):
+        super().__init__(agxSDK.StepEventListener.PRE_STEP)
+        # Aft section
+        self.angle_aft_current = 0
+        self.prev_angle_aft_current = 0
+        self.angle_aft_turns = 0
+        self.motor_aft_angle_desired = None
+        self.prev_motor_aft_angle_desired = None
+        self.angle_aft_next = 0
+
+        # Forward section
+        self.angle_fwd_current = 0
+        self.prev_angle_fwd_current = 0
+        self.angle_fwd_turns = 0
+        self.motor_fwd_angle_desired = None
+        self.prev_motor_fwd_angle_desired = None
+        self.angle_fwd_next = 0
+
+        # Desired end-effector position
+        self.x = 0
+        self.y = 0
+        self.z = 0
+
+        # Assign some variables that the listener needs
+        self.interval = interval
+        #self.interval = 3
+        self.speed = float(speed)
+        self.last = 0
+        self.motor_aft = motor_aft
+        self.motor_fwd = motor_fwd
+        self.step = 0
+        self.error = error
+        self.motor_aft_on = False
+        self.motor_fwd_on = False
+        self.moving_right = True
+
+        self.hinge_free = False
+        self.enable_motor()
+
+        self.user_input = MainUserInput()
+        self.set_end_effector_pos()
+
+    def set_end_effector_pos(self):
+        self.x = self.user_input.get_x()
+        self.y = self.user_input.get_y()
+        self.z = self.user_input.get_z()
+
+    def enable_motor(self):
+        free_mode = input("Model to be in free mode [Y/N]: ")
+        if (free_mode == "Y" or free_mode == "y"):
+            self.hinge_free = False
+        else:
+            self.hinge_free = True
+
+        enable_aft = input("Enable aft motor [Y/N]: ")
+        if (enable_aft == "Y" or enable_aft == "y"):
+            self.motor_aft.getLock1D().setEnable(False)
+            self.motor_aft_on = True
+        else:
+            self.motor_aft.getLock1D().setEnable(self.hinge_free)
+            self.motor_fwd_on = False
+
+        enable_fwd = input("Enable fwd motor [Y/N]: ")
+        if (enable_fwd == "Y" or enable_fwd == "y"):
+            self.motor_fwd.getLock1D().setEnable(False)
+            self.motor_fwd_on = True
+        else:
+            self.motor_fwd.getLock1D().setEnable(self.hinge_free)
+            self.motor_fwd_on = False
+
+    def get_angle_aft(self):
+        return self.angle_aft_current
+
+    def get_angle_fwd(self):
+        return self.angle_fwd_current
+
+    def update_angle(self):
+        self.angle_aft_current = math.degrees(self.motor_aft.getAngle()) - 360*self.angle_aft_turns + 270
+        if self.angle_aft_current > 360:
+            self.angle_aft_turns = self.angle_aft_turns + 1
+
+        self.angle_fwd_current = math.degrees(self.motor_fwd.getAngle()) - 360*self.angle_fwd_turns + 270
+        if self.angle_fwd_current > 360:
+            self.angle_fwd_turns = self.angle_fwd_turns + 1
+
+    def calculate_desired_angles(self, x, y, z, scale):
+        angle_aft_desired = calculate_motor_angle_aft(x, y, z, scale)
+        angle_fwd_desired = calculate_motor_angle_fwd(x, y, z, scale)
+
+        return angle_aft_desired, angle_fwd_desired
+
+    def move_aft_motor(self, speed, desired_angle, error):
+        # Running aft motor to desired angle
+
+        diff_angle = desired_angle - self.angle_aft_current
+        #diff_angle = self.prev_angle_aft_current - self.angle_aft_current
+        #print(self.prev_angle_aft_current - self.angle_aft_current)
+        print(desired_angle - self.angle_aft_current)
+
+        # if (desired_angle > 90 and self.angle_aft_current < 90):
+        #     speed = -1
+        # elif (desired_angle > 0 and desired_angle < 90):
+        #     # if ((self.angle_aft_current > desired_angle) > 0):
+        #     #     speed = -1
+        #     # else:
+        #     #     speed = 1
+        #
+        #     if desired_angle > 0 and desired_angle < 90:
+        #         if self.angle_aft_current > 90:
+        #             speed = 1
+        #         elif self.prev_motor_aft_angle_desired < self.motor_aft_angle_desired:
+        #             speed = -1
+        #         else:
+        #             speed = -1
+        #     else:
+        #         speed = -1
+
+        # if (diff_angle > 0):
+        #     if (desired_angle > 90 and self.angle_aft_current < 90):
+        #         speed = -1
+        #     elif (desired_angle > 0 and self.angle_aft_current > 90):
+        #         speed = 1
+        #     else:
+        #         speed = 1
+        # elif (diff_angle < 0):
+        #     speed = -1
+        # else:
+        #     speed = 0
+
+        if diff_angle > 0:
+            # if desired_angle < 90:
+            #     if self.angle_aft_current < 90:
+            #         speed = speed
+            # elif desired_angle >= 90:
+            #     if self.angle_aft_current < 90:
+            #         speed = -speed
+            # # else:
+            # #     speed = speed
+
+
+            # if (desired_angle > 90 and self.angle_aft_current < 90):
+            #     speed = -speed
+            # else:
+            speed = speed
+        elif diff_angle == 0:
+            speed = 0
+        elif (desired_angle > 90 and self.angle_aft_current < 90):
+            speed = -speed
+        else:
+            if desired_angle > 0 and desired_angle < 90:
+                if self.angle_aft_current > 90:
+                    speed = speed
+                elif self.prev_motor_aft_angle_desired < self.motor_aft_angle_desired:
+                    speed = -speed
+                else:
+                    speed = -speed
+            else:
+                speed = -speed
+
+        # if diff_angle > 0:
+        #     if (self.prev_motor_aft_angle_desired - self.angle_aft_current) > 0:
+        #         print("Pre-Curr: ", (self.prev_motor_aft_angle_desired - self.angle_aft_current))
+        #         speed = speed
+        #     else:
+        #         speed = -speed
+        # elif diff_angle == 0:
+        #     speed = 0
+        # else:
+        #     speed = -speed
+
+        lower_bracket = desired_angle - error
+        upper_bracket = desired_angle + error
+
+        if abs(self.angle_aft_current) > lower_bracket and abs(self.angle_aft_current) < upper_bracket:
+            #print("INSIDE AFT and Speed is now:", speed)
+            self.motor_aft.getMotor1D().setEnable(True)
+            #self.motor_aft.getLock1D().setEnable(False)
+            #self.motor_aft_on = False
+            speed = 0
+            self.motor_aft.getMotor1D().setSpeed(speed)
+        else:
+            #print("OUTSIDE AFT and Speed is now:", speed)
+            self.motor_aft.getMotor1D().setEnable(True)
+            self.motor_aft.getMotor1D().setSpeed(speed)
+
+        self.prev_motor_aft_angle_desired = self.motor_aft_angle_desired
+        self.prev_angle_aft_current = self.angle_aft_current
+
+    def move_fwd_motor(self, speed, desired_angle, error):
+        # Running fwd motor to desired angle
+
+        diff_angle = desired_angle - self.angle_fwd_current
+
+        if diff_angle > 0:
+            speed = speed
+        elif diff_angle == 0:
+            speed = 0
+        else:
+            speed = -speed
+
+        lower_bracket_fwd = desired_angle - error
+        upper_bracket_fwd = desired_angle + error
+
+        if abs(self.angle_fwd_current) > lower_bracket_fwd and abs(self.angle_fwd_current) < upper_bracket_fwd:
+            #print("INSIDE FWD and Speed is now:", speed)
+            self.motor_fwd.getMotor1D().setEnable(True)
+            # self.motor_aft.getLock1D().setEnable(False)
+            # self.motor_aft_on = False
+            speed = 0
+            self.motor_fwd.getMotor1D().setSpeed(speed)
+        else:
+            #print("OUTSIDE FWD and Speed is now:", speed)
+            self.motor_fwd.getMotor1D().setEnable(True)
+            self.motor_fwd.getMotor1D().setSpeed(speed)
+
+        self.prev_motor_fwd_angle_desired = self.motor_fwd_angle_desired
+        self.prev_angle_fwd_current = self.angle_fwd_current
         super().__init__(agxSDK.StepEventListener.PRE_STEP)
 
         # Assign variables necessary for the listener.
