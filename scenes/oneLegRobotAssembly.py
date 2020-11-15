@@ -364,42 +364,87 @@ class MotorSpeedControllerAft(agxSDK.StepEventListener):
 
         # Aft section
         print("----- Aft section -----")
-        self.angleAft = math.degrees(self.motorAft.getAngle())
-        print("Angle aft:     ", self.angleAft)
-        #aftSectionPos = self.rb1.getPosition()
-        #aftX = aftSectionPos[0]
-        #aftY = aftSectionPos[1]
-        #aftZ = aftSectionPos[2]
-        #diffXAft = self.initAftX - aftX
-        #diffYAft = self.initAftY - aftY
-        #diffZAft = self.initAftZ - aftZ
-        #theta_2_fwd_kin = math.degrees(math.atan(diffZAft / diffXAft)) + 90
-        #print("X: ", aftX, "     Diff. X: ", diffXAft)
-        #print("Y: ", aftY, "     Diff. Y: ", diffYAft)
-        #print("Z: ", aftZ, "     Diff. Z: ", diffZAft)
-        #print("Theta_2: ", theta_2_fwd_kin)
+        self.angle_aft = math.degrees(self.motor_aft.getAngle())
+        print("Angle aft:     ", self.angle_aft)
+        # aft_section_pos = self.rb1.getPosition()
+        # aft_x = aft_section_pos[0]
+        # aft_y = aft_section_pos[1]
+        # aft_z = aft_section_pos[2]
+        # diff_x_aft = self.init_aft_X - aft_x
+        # diff_y_aft = self.init_aft_Y - aft_y
+        # diff_z_aft = self.init_aft_Z - aft_z
+        # theta_2_fwd_kin = math.degrees(math.atan(diff_z_aft / diff_x_aft)) + 90
+        # print("X: ", aft_x, "     Diff. X: ", diff_x_aft)
+        # print("Y: ", aft_y, "     Diff. Y: ", diff_y_aft)
+        # print("Z: ", aft_z, "     Diff. Z: ", diff_z_aft)
+        # print("Theta_2: ", theta_2_fwd_kin)
 
         # Fwd section
         print("----- Fwd section -----")
-        self.angleFwd = math.degrees(self.motorFwd.getAngle())
-        print("Angle fwd:     ", self.angleFwd)
-        #fwdSectionPos = self.rb2.getPosition()
-        #fwdX = fwdSectionPos[0]
-        #fwdY = fwdSectionPos[1]
-        #fwdZ = fwdSectionPos[2]
-        #diffXFwd = self.initFwdX - fwdX
-        #diffYFwd = self.initFwdY - fwdY
-        #diffZFwd = self.initFwdZ - fwdZ
-        #theta_6_fwd_kin = math.degrees(math.atan(diffZFwd / diffXFwd)) + 90
-        #print("X: ", fwdX, "     Diff. X: ", diffXFwd)
-        #print("Y: ", fwdY, "     Diff. Y: ", diffYFwd)
-        #print("Z: ", fwdZ, "     Diff. Z: ", diffZFwd)
-        #print("Theta_6: ", theta_6_fwd_kin)
+        self.angle_fwd = math.degrees(self.motor_fwd.getAngle())
+        print("Angle fwd:     ", self.angle_fwd)
+        # fwd_section_pos = self.rb2.getPosition()
+        # fwd_x = fwd_section_pos[0]
+        # fwd_y = fwd_section_pos[1]
+        # fwd_z = fwd_section_pos[2]
+        # diff_x_fwd = self.init_fwd_X - fwd_x
+        # diff_y_fwd = self.init_fwd_Y - fwd_y
+        # diff_z_fwd = self.init_fwd_Z - fwd_z
+        # theta_6_fwd_kin = math.degrees(math.atan(diff_z_fwd / diff_x_fwd)) + 90
+        # print("X: ", fwd_x, "     Diff. X: ", diff_x_fwd)
+        # print("Y: ", fwd_y, "     Diff. Y: ", diff_y_fwd)
+        # print("Z: ", fwd_z, "     Diff. Z: ", diff_z_fwd)
+        # print("Theta_6: ", theta_6_fwd_kin)
+
+
+def calculate_motor_angle_fwd(x, y, z, scale):
+    # Calculate for fwd motor
+    global x_A1, z_A1, theta_1, theta_2, theta_3, theta_4, theta_9
+    x_A1 = (restX + x) / scale
+    z_A1 = (restZ - z) / scale
+    theta_1 = 180 - math.degrees(math.atan2(z_A1, x_A1))
+    theta_4 = math.degrees(
+        math.acos((math.pow(x_A1, 2) + math.pow(z_A1, 2) - math.pow((L_1 / scale), 2) - math.pow((L_2 / scale), 2)) / (2 * (L_1 / scale) * (L_2 / scale))))
+    theta_9 = math.degrees(
+        math.asin(((L_1 / scale) / math.sqrt(math.pow(x_A1,2) + math.pow(z_A1, 2))) * math.sin(math.radians(theta_4))))
+    theta_3 = 180 - (180-theta_4) - theta_9
+    if (theta_1 - theta_3) <= 0:
+        theta_2 = 180 + (theta_1 - theta_3)
+    else:
+        theta_2 = 180 + (theta_1 - theta_3)
+
+    def aft_first_section_outer_position(x, y, z):
+        r_A1 = L_1
+        x_1 = r_A1 * math.cos(math.degrees(theta_2))
+        z_1 = r_A1 * math.sin(math.degrees(theta_2))
+
+        return x_1, z_1
+
+    return theta_2
+
+
+def calculate_motor_angle_aft(x, y, z, scale):
+    # Calculate for aft motor
+    global x_A2, z_A2, theta_5, theta_6, theta_7, theta_8, theta_10
+    x_A2 = (restX - x) / scale
+    z_A2 = (restZ - z) / scale
+    theta_5 = 180 - math.degrees(math.atan2(z_A2, x_A2))
+    theta_8 = math.degrees(
+        math.acos((math.pow(x_A2, 2) + math.pow(z_A2, 2) - math.pow((L_3 / scale), 2) - math.pow((L_4 / scale), 2)) / (2 * (L_3 / scale) * (L_4 / scale))))
+    theta_10 = math.degrees(
+        math.asin(((L_3 / scale) / math.sqrt(math.pow(x_A2, 2) + math.pow(z_A2, 2))) * math.sin(math.radians(theta_8))))
+    theta_7 = 180 - (180 - theta_8) - theta_10
+    if (theta_5 - theta_7) <= 0:
+        theta_6 = abs((theta_5 - theta_7))
+    else:
+        theta_6 = 360 - (theta_5 - theta_7)
+
+    return theta_6
+
 
 def get_debug():
     return debugging
 
-    return x
 
 def print_debug_list():
     if get_debug():
