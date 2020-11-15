@@ -396,8 +396,8 @@ class MotorSpeedControllerAft(agxSDK.StepEventListener):
         #print("Z: ", fwdZ, "     Diff. Z: ", diffZFwd)
         #print("Theta_6: ", theta_6_fwd_kin)
 
-def get_end_effector_pos():
-    x = 0
+def get_debug():
+    return debugging
 
     return x
 
