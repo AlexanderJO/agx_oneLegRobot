@@ -62,30 +62,37 @@ y_local = 0
 z_local = 0
 
 
-def create_bodies(position1, position2, sizeUpper, sizeLower, scale, reducedLength):
+def create_bodies(position1, position2, size_upper, size_lower, scale, reduced_length):
     # Create upper section.
-    upper = create_box_mod(sizeUpper, reducedLength)
+    upper = create_box_mod(size_upper, reduced_length)
     upper.setPosition(agx.Vec3(position1[0], position1[1], position1[2]))
 
     # Create lower section.
-    lower = create_box_mod(sizeLower, reducedLength)
+    lower = create_box_mod(size_lower, reduced_length)
     lower.setPosition(agx.Vec3(position2[0], position2[1], position2[2]))
 
     return upper, lower
 
-def create_box_mod(size, reducedLength):
+
+def create_box_mod(size, reduced_length):
     body = agx.RigidBody()
-    shape = agxCollide.Box(size[0], size[1], size[2]-reducedLength)
+    shape = agxCollide.Box(size[0], size[1], size[2] - reduced_length)
     geometry = agxCollide.Geometry(shape)
     body.add(geometry)
 
     return body
 
-def create_sphere(position, diam):
+
+def create_sphere(position: agx.Vec3, diam):
     body = agx.RigidBody()
     shape = agxCollide.Sphere(diam)
     geometry = agxCollide.Geometry(shape)
     body.add(geometry)
+    body.setPosition(position)
+
+    return body
+
+
 def create_capsule(position: agx.Vec3, scale):
     body = agx.RigidBody()
     shape = agxCollide.Capsule(0.5 * scale, 1 * scale)
