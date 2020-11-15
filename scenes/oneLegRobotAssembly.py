@@ -522,8 +522,51 @@ def create_hinge_1RB(rb1, frame1, range):
 
     return hinge
 
-class MotorSpeedControllerAft_New(agxSDK.StepEventListener):
-    def __init__(self, hinge1, hinge2):
+
+
+class MainUserInput():
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+        self.z = 0
+
+        self.user_input()
+
+    def user_input(self):
+        print("Position for end-effector to be set to desired position below.")
+        print("Y-position is locked and set to 0 by default.")
+
+        while True:
+            try:
+                self.x = int(input("Insert desired x position: "))
+            except ValueError:
+                print("Please insert only integers. Try again.")
+                continue
+            else:
+                break
+
+        while True:
+            try:
+                self.z = int(input("Insert desired z position: "))
+            except ValueError:
+                print("Please insert only integers. Try again.")
+                continue
+            else:
+                break
+
+    def get_x(self):
+        print("X input", self.x)
+        return self.x
+
+    def get_y(self):
+        print("Y input", self.y)
+        return self.y
+
+    def get_z(self):
+        print("Z input", self.z)
+        return self.z
+
+
 class EndEffectorController(agxSDK.StepEventListener):
 
     def __init__(self, motor_aft, motor_fwd, error, speed, interval):
