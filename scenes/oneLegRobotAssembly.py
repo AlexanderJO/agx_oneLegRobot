@@ -86,6 +86,11 @@ def create_sphere(position, diam):
     shape = agxCollide.Sphere(diam)
     geometry = agxCollide.Geometry(shape)
     body.add(geometry)
+def create_cylinder(position, scale):
+    body = agx.RigidBody()
+    shape = agxCollide.Cylinder(0.5 * scale, 1 * scale)
+    geometry = agxCollide.Geometry(shape)
+    body.add(geometry)
     body.setPosition(position[0], position[1], position[2])
 
     return body
