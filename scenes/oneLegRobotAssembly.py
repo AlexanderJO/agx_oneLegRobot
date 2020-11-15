@@ -112,131 +112,276 @@ def create_cylinder(position, scale):
 
     return body
 
-def create_joints():
+
+class CreateRobot():
     # Initial setup
-    reducedLength = 0.5
-    increaseHeight = 2.8
-    sizeUpper = UPPER_LEG_SECTION_SIZE
-    sizeLower = LOWER_LEG_SECTION_SIZE
+    hinge_list = list()
+    frame_list = list()
 
-    # --------- Create aft section -----------
-    posUpperAft = [L_5*MODEL_SCALE, 0, 3.1 + increaseHeight]
-    posLowerAft = [L_5*MODEL_SCALE, 0, 1.3 + increaseHeight-1]
-    aftUpper, aftLower = create_bodies(position1=posUpperAft, position2=posLowerAft,
-                                           sizeUpper=sizeUpper, sizeLower=sizeLower, scale=MODEL_SCALE, reducedLength=reducedLength)
+    def __init__(self):
+        # Initial setup
+        self.hinge_counter = 0
+        self.reduced_length = 0.5
+        self.increase_height = 2.95
+        self.size_upper = UPPER_LEG_SECTION_SIZE
+        self.size_lower = LOWER_LEG_SECTION_SIZE
 
-    # Add upper and lower sections of aft part of robot to simulation
-    oneLegRobotApp.sim().add(aftUpper)
-    oneLegRobotApp.sim().add(aftLower)
+    def create_joints(self):
+        # --------- Create aft section -----------
+        pos_upper_aft = [L_5*MODEL_SCALE, 0, 3.1 + self.increase_height]
+        pos_lower_aft = [L_5*MODEL_SCALE, 0, 1.3 + self.increase_height-1]
+        aft_upper, aft_lower = create_bodies(position1=pos_upper_aft, position2=pos_lower_aft,
+                                             size_upper=self.size_upper, size_lower=self.size_lower, scale=MODEL_SCALE,
+                                             reduced_length=self.reduced_length)
 
-    # Create frame for aft motor
-    f1 = agx.Frame()
-    f1.setLocalTranslate(0, 0, sizeUpper[2]-reducedLength/2)
-    f1.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        # Add upper and lower sections of aft part of robot to simulation
+        oneLegRobotApp.sim().add(aft_upper)
+        oneLegRobotApp.sim().add(aft_lower)
 
-    # Create hinge to aft motor
-    hinge1Range = [-math.pi / 4, math.pi / 4]
-    hinge1 = create_hinge_1RB(aftUpper, f1, hinge1Range)
-    oneLegRobotApp.sim().add(hinge1)
+        # Create frame for aft motor
+        f1 = agx.Frame()
+        f1.setLocalTranslate(0, 0, self.size_upper[2]-self.reduced_length/2)
+        f1.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        self.frame_list.append(f1)
 
-    # Create frames for upper and lower aft section
-    f2 = agx.Frame()
-    f2.setLocalTranslate(0, 0, -sizeUpper[2]-reducedLength/2)
-    f2.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        # Create hinge to aft motor
+        hinge1_range = [-math.pi / 4, math.pi / 4]
+        hinge1 = self.create_hinge_1RB(aft_upper, f1, hinge1_range)
+        hinge1.getLock1D().setEnable(True)
+        self.hinge_list.append(hinge1)
+        #oneLegRobotApp.sim().add(hinge1)
 
-    f3 = agx.Frame()
-    f3.setLocalTranslate(0, 0, sizeLower[2])
-    f3.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        # Create frames for upper and lower aft section
+        f2 = agx.Frame()
+        f2.setLocalTranslate(0, 0, -self.size_upper[2]-self.reduced_length/2)
+        f2.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        self.frame_list.append(f2)
 
-    # Create hinge between upper and lower fwd section
-    hinge2Range = [-math.pi/4, math.pi/4]
-    hinge2 = create_hinge_2RB(aftUpper, f2, aftLower, f3, hinge2Range)
-    oneLegRobotApp.sim().add(hinge2)
+        f3 = agx.Frame()
+        f3.setLocalTranslate(0, 0, self.size_lower[2]-self.reduced_length/2)
+        f3.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        self.frame_list.append(f3)
 
-    # --------- Create fwd section -----------
-    posUpperFwd = [-L_5*MODEL_SCALE, 0, 3.1 + increaseHeight]
-    posLowerFwd = [-L_5*MODEL_SCALE, 0, 1.3 + increaseHeight-1]
-    fwdUpper, fwdLower = create_bodies(position1=posUpperFwd, position2=posLowerFwd,
-                                           sizeUpper=sizeUpper, sizeLower=sizeLower, scale=MODEL_SCALE, reducedLength=reducedLength)
+        # Create hinge between upper and lower fwd section
+        hinge2_range = [-math.pi/4, math.pi/4]
+        hinge2 = self.create_hinge_2RB(aft_upper, f2, aft_lower, f3, hinge2_range)
+        self.hinge_list.append(hinge2)
+        #oneLegRobotApp.sim().add(hinge2)
 
-    # Add upper and lower sections of aft part of robot to simulation
-    oneLegRobotApp.sim().add(fwdUpper)
-    oneLegRobotApp.sim().add(fwdLower)
+        # --------- Create fwd section -----------
+        pos_upper_fwd = [-L_5*MODEL_SCALE, 0, 3.1 + self.increase_height]
+        pos_lower_fwd = [-L_5*MODEL_SCALE, 0, 1.3 + self.increase_height-1]
+        fwd_upper, fwd_lower = create_bodies(position1=pos_upper_fwd, position2=pos_lower_fwd,
+                                             size_upper=self.size_upper, size_lower=self.size_lower, scale=MODEL_SCALE,
+                                             reduced_length=self.reduced_length)
 
-    # Create frame for forward motor
-    f4 = agx.Frame()
-    f4.setLocalTranslate(0, 0, sizeUpper[2] - reducedLength / 2)
-    f4.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        # Add upper and lower sections of aft part of robot to simulation
+        oneLegRobotApp.sim().add(fwd_upper)
+        oneLegRobotApp.sim().add(fwd_lower)
 
-    # Create hinge to forward motor
-    hinge3Range = [-math.pi/4, math.pi/4]
-    hinge3 = create_hinge_1RB(fwdUpper, f4, hinge3Range)
-    hinge3.getLock1D().setEnable(False)
-    oneLegRobotApp.sim().add(hinge3)
+        # Create frame for forward motor
+        f4 = agx.Frame()
+        f4.setLocalTranslate(0, 0, self.size_upper[2] - self.reduced_length / 2)
+        f4.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        self.frame_list.append(f4)
 
-    # Create frames for upper and lower fwd section
-    f5 = agx.Frame()
-    f5.setLocalTranslate(0, 0, -sizeUpper[2]-reducedLength/2)
-    f5.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        # Create hinge to forward motor
+        hinge3_range = [-math.pi/4, math.pi/4]
+        hinge3 = self.create_hinge_1RB(fwd_upper, f4, hinge3_range)
+        hinge3.getLock1D().setEnable(True)
+        self.hinge_list.append(hinge3)
+        #oneLegRobotApp.sim().add(hinge3)
 
-    f6 = agx.Frame()
-    f6.setLocalTranslate(0, 0, sizeLower[2])
-    f6.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        # Create frames for upper and lower fwd section
+        f5 = agx.Frame()
+        f5.setLocalTranslate(0, 0, -self.size_upper[2]-self.reduced_length/2)
+        f5.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        self.frame_list.append(f5)
 
-    # Create hinge between upper and lower fwd section
-    hinge4Range = [-math.pi/4, math.pi/4]
-    hinge4 = create_hinge_2RB(fwdUpper, f5, fwdLower, f6, hinge4Range)
-    oneLegRobotApp.sim().add(hinge4)
+        f6 = agx.Frame()
+        f6.setLocalTranslate(0, 0, self.size_lower[2]-self.reduced_length/2)
+        f6.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        self.frame_list.append(f6)
 
-    # Create end effector frame for lower aft and forward section.
-    f7 = agx.Frame()
-    f7.setLocalTranslate(0, 0, -sizeUpper[2]*2-reducedLength/2)
-    f7.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        # Create hinge between upper and lower fwd section
+        hinge4_range = [-math.pi/4, math.pi/4]
+        hinge4 = self.create_hinge_2RB(fwd_upper, f5, fwd_lower, f6, hinge4_range)
+        self.hinge_list.append(hinge4)
+        #oneLegRobotApp.sim().add(hinge4)
 
-    f8 = agx.Frame()
-    f8.setLocalTranslate(0, 0, -sizeUpper[2]*2-reducedLength/2)
-    f8.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        # Create end effector frame for lower aft and forward section.
+        f7 = agx.Frame()
+        f7.setLocalTranslate(0, 0, -self.size_upper[2]*2-self.reduced_length/2+0.1)
+        f7.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        self.frame_list.append(f7)
 
-    # --------- Create end effector -----------
-    # Create hinge for end effector between lower aft and forward section.
-    hinge5Range = [-math.pi/4, math.pi/4]
-    hinge5 = create_hinge_2RB(aftLower, f7, fwdLower, f8, hinge5Range)
-    oneLegRobotApp.sim().add(hinge5)
+        f8 = agx.Frame()
+        f8.setLocalTranslate(0, 0, -self.size_upper[2]*2-self.reduced_length/2+0.1)
+        f8.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        self.frame_list.append(f8)
 
-    # Create frame for end-effector point as ball.
-    f9 = agx.Frame()
-    f9.setLocalTranslate(0, 0, 0)
-    f9.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        # --------- Create end effector -----------
+        # Create hinge for end effector between lower aft and forward section.
+        hinge5_range = [-math.pi/4, math.pi/4]
+        hinge5 = self.create_hinge_2RB(aft_lower, f7, fwd_lower, f8, hinge5_range)
+        self.hinge_list.append(hinge5)
+        #oneLegRobotApp.sim().add(hinge5)
 
-    # Create hinge for ball end-effector point
-    hinge6Range = [-math.pi/4, math.pi/4]
-    foot = create_sphere([0, 0, 1], 0.1)
-    oneLegRobotApp.sim().add(foot)
-    hinge6 = create_hinge_2RB(aftLower, f7, foot, f9, hinge6Range)
-    oneLegRobotApp.sim().add(hinge6)
+        # Create frame for end-effector point as ball.
+        f_end_effector = agx.Frame()
+        f_end_effector.setLocalTranslate(agx.Vec3(0,0,0))
+        f_end_effector.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        self.frame_list.append(f_end_effector)
 
-    # Read current frame position
-    f1Pos = frameReader(f1)
-    oneLegRobotApp.sim().add(f1Pos)
 
-    # Make the first motor swing back and forth
-    speed_controller_aft = MotorSpeedControllerAft(hinge1, hinge3, 1, 2, aftUpper, fwdUpper, posUpperAft, posUpperFwd)
-    oneLegRobotApp.sim().add(speed_controller_aft)
 
-    def get_hinge1():
-        return hinge1
+        #f10 = agx.Frame()
+        #f10.setLocalTranslate(agx.Vec3(0,0,0))
+        #ball = create_sphere(agx.Vec3(2,2,0), 0.1)
+        #ball.addAttachment(f10, "f10")
+        #oneLegRobotApp.sim().add(ball)
 
-    if (debugging):
-        staticAbove1 = agxCollide.Geometry(agxCollide.Box(1.8, 1.8, -1.2))
-        staticAbove1.setLocalPosition(0, -2.5, 7 - 1.2)
-        oneLegRobotApp.sim().add(staticAbove1)
+        # Create hinge for ball end-effector point
+        hinge6_range = [-math.pi/4, math.pi/4]
+        foot = create_sphere(agx.Vec3(0, 0, 0), 0.1)
+        foot.addAttachment(f_end_effector, "position_end_effector")
+        oneLegRobotApp.sim().add(foot)
+        hinge6 = self.create_hinge_2RB(aft_lower, f7, foot, f_end_effector, hinge6_range)
+        hinge6.getLock1D().setEnable(True)
+        self.hinge_list.append(hinge6)
+        #print("Number of DOF: ", hinge6.getNumDOF())
+        #oneLegRobotApp.sim().add(hinge6)
 
-        staticAbove2 = agxCollide.Geometry(agxCollide.Box(1.8, 2, -2.4))
-        staticAbove2.setLocalPosition(0, -2.5, 7 - 1.2 - 2.4 - 2.4 / 2)
-        oneLegRobotApp.sim().add(staticAbove2)
+        # --------- Create frame at aft motor -----------
+        # Create frame for motor aft.
+        f_motor_aft = agx.Frame()
+        f_motor_aft.setLocalTranslate(agx.Vec3(0, 0, 0))
+        f_motor_aft.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        self.frame_list.append(f_motor_aft)
+
+        # Create hinge for motor aft.
+        hinge7_range = [-math.pi / 4, math.pi / 4]
+        motor_aft = create_sphere(agx.Vec3(0, 0, -self.size_upper[2]-self.reduced_length), 0.1)
+        motor_aft.addAttachment(f_motor_aft, "motor_aft")
+        oneLegRobotApp.sim().add(motor_aft)
+        hinge7 = self.create_hinge_2RB(aft_upper, f1, motor_aft, f_motor_aft, hinge7_range)
+        hinge7.getLock1D().setEnable(True)
+        self.hinge_list.append(hinge7)
+
+        # --------- Create frame at fwd motor -----------
+        # Create frame for motor aft.
+        f_motor_fwd = agx.Frame()
+        f_motor_fwd.setLocalTranslate(agx.Vec3(0, 0, 0))
+        f_motor_fwd.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
+        self.frame_list.append(f_motor_fwd)
+
+        # Create hinge for motor aft.
+        hinge8_range = [-math.pi / 4, math.pi / 4]
+        motor_fwd = create_sphere(agx.Vec3(0, 0, -self.size_upper[2] - self.reduced_length), 0.1)
+        motor_fwd.addAttachment(f_motor_fwd, "motor_fwd")
+        oneLegRobotApp.sim().add(motor_fwd)
+        hinge8 = self.create_hinge_2RB(fwd_upper, f4, motor_fwd, f_motor_fwd, hinge8_range)
+        hinge8.getLock1D().setEnable(True)
+        self.hinge_list.append(hinge8)
+
+        # --------- Reading data -----------
+        # Read current frame position
+        f_end_effector_pos = FrameReader(f_end_effector)
+        oneLegRobotApp.sim().add(f_end_effector_pos)
+
+        # Read current frame position
+        f_motor_aft_pos = FrameReader(f_motor_aft)
+        oneLegRobotApp.sim().add(f_motor_aft_pos)
+
+        # Read current frame position
+        f_motor_fwd_pos = FrameReader(f_motor_fwd)
+        oneLegRobotApp.sim().add(f_motor_fwd_pos)
+
+        # --------- Reading data - Aft motor -----------
+        # Read current hinge position
+        hinge1_pos = HingePosition(hinge1, 1, 1)
+        oneLegRobotApp.sim().add(hinge1_pos)
+
+        # Read current hinge position
+        hinge7_pos = HingePosition(hinge7, 7, 1)
+        oneLegRobotApp.sim().add(hinge7_pos)
+
+        # --------- Reading data - Aft motor -----------
+        # Read current hinge position
+        hinge3_pos = HingePosition(hinge3, 3, 1)
+        oneLegRobotApp.sim().add(hinge3_pos)
+
+        # Read current hinge position
+        hinge8_pos = HingePosition(hinge8, 8, 1)
+        oneLegRobotApp.sim().add(hinge8_pos)
+
+        # --------- Reading data - Ball motor -----------
+
+        # Read current hinge position
+        hinge5_pos = HingePosition(hinge5, 5, 1)
+        oneLegRobotApp.sim().add(hinge5_pos)
+
+        # --------- Add to simulation -----------
+        # Make the first motor swing back and forth
+        #speed_controller_aft = MotorSpeedController(hinge1, hinge3, 1, 2, aft_upper, fwd_upper, pos_upper_aft, pos_upper_fwd)
+        #oneLegRobotApp.sim().add(speed_controller_aft)
+
+        # --------- Add to simulation -----------
+        # Add hinges to simulation
+        for i in range(len(self.hinge_list)):
+            oneLegRobotApp.sim().add(self.hinge_list[i])
+
+        if (debugging):
+            static_above1 = agxCollide.Geometry(agxCollide.Box(1.8, 1.8, -1.2))
+            static_above1.setLocalPosition(0, 2.5, 7 - 1.2)
+            oneLegRobotApp.sim().add(static_above1)
+
+            static_above2 = agxCollide.Geometry(agxCollide.Box(1.8, 1.8, -2.4))
+            static_above2.setLocalPosition(0, 2.5, 7 - 1.2 - 2.4 - 2.4 / 2)
+            oneLegRobotApp.sim().add(static_above2)
+
+    def get_hinge_list(self):
+        return self.hinge_list
+
+    def get_frame_list(self):
+        return self.frame_list
+
+    def create_hinge_1RB(self, rb1, frame1, range):
+        hinge = agx.Hinge(rb1, frame1)
+
+        # Sets the angular range of the hinge.
+        hinge.getRange1D().setRange(range[0], range[1])
+
+        # Sets the compliance of the hinge DOF.
+        hinge.setCompliance(1E-12)
+        hinge.getMotor1D().setCompliance(1E-10)
+        hinge.getMotor1D().setEnable(False)
+        hinge.getLock1D().setEnable(False)
+
+        return hinge
+
+    def create_hinge_2RB(self, rb1, frame1, rb2, fram2, range):
+        hinge = agx.Hinge(rb1, frame1, rb2, fram2)
+
+        # Sets the angular range of the hinge.
+        hinge.getRange1D().setRange(range[0], range[1])
+
+        # Sets the compliance of the hinge DOF.
+        hinge.setCompliance(1E-12)
+        hinge.getMotor1D().setCompliance(1E-10)
+        hinge.getMotor1D().setEnable(False)
+        hinge.getLock1D().setEnable(False)
+
+        return hinge
+
 
 def create_floor():
-    floor = agxCollide.Geometry(agxCollide.Box(10, 10, 0.1))
+    """
+    Builds the flooring of the simulation.
+    """
+    shape = agxCollide.Box(10, 10, 0.1)
+    floor = agxCollide.Geometry(shape)
+    #oneLegRobotApp.create_visual(floor, diffuse_color=agxRender.Color.Green())
     floor.setPosition(0, 0, -0.3)
     oneLegRobotApp.sim().add(floor)
 
@@ -244,24 +389,64 @@ def create_floor():
 
 
 def build_scene():
+    """
+    Builds the scene and starts simulation and controllers.
+    """
     # Create scenes
     floor = create_floor()
-    jointBuilder = create_joints()
+    CreateRobot().create_joints()
+    hinge_list = CreateRobot().get_hinge_list()
+
+    end_effector_controller = EndEffectorController(hinge_list[0], hinge_list[2], 0.5, 1, 2)
+    oneLegRobotApp.sim().add(end_effector_controller)
 
     # Create moveable floor
-    floor_controller = moveFloorController(floor=floor, movement=[0, 0, 1])
+    floor_controller = MoveFloorController(floor=floor, movement=[0, 0, 0.9])
     oneLegRobotApp.sim().add(floor_controller)
 
     # Rendering details
     oneLegRobotApp.app().getSceneDecorator().setEnableShadows(False)
     oneLegRobotApp.app().setEnableDebugRenderer(True)
 
-    #print("Floor pos: ", floor.getPosition())
+    # Set grid
+    # oneLegRobotApp.app().setEnableGrid(True)
+    # oneLegRobotApp.app().setGridSize(agx.Vec2(10,10))
 
     # Arrange camera to be centered around center of floor
     oneLegRobotApp.init_camera(eye=agx.Vec3(20, 20, 30), center=floor.getPosition())
 
-class frameReader(agxSDK.StepEventListener):
+
+class HingePosition(agxSDK.StepEventListener):
+    """
+    Class used to display current hinge position.
+
+    hinge : agx.Hinge()
+        Hinge object
+    hinge_num : int
+        Hinge number
+    index : int
+        Index number stating whether Frame() is child to RigidBody1 (1) or RigidBody2 (2)
+    """
+    def __init__(self, hinge, hinge_num, index):
+        super().__init__(agxSDK.StepEventListener.PRE_STEP)
+
+        self.hinge = hinge
+        self.index = index
+        self.hinge_num = hinge_num
+        self.hinge_pos = None
+
+    def pre(self, time):
+        self.hinge_pos = self.hinge.getAttachment(self.index).getFrame().getTranslate()
+        #print("Hinge ", self.hinge_num, " position: ", self.hinge_pos)
+
+
+class FrameReader(agxSDK.StepEventListener):
+    """
+    Class used to display current frane position.
+
+    frame : agx.Frame()
+        Frame object
+    """
     def __init__(self, frame):
         super().__init__(agxSDK.StepEventListener.PRE_STEP)
 
