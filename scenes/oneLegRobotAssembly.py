@@ -220,10 +220,9 @@ class CreateRobot():
 
         # Create hinge to forward motor
         hinge3_range = [-math.pi/4, math.pi/4]
-        hinge3 = self.create_hinge_1RB(fwd_upper, f4, hinge3_range)
+        hinge3 = self.create_hinge_1RB(self.fwd_upper, f4, hinge3_range)
         hinge3.getLock1D().setEnable(True)
         self.hinge_list.append(hinge3)
-        #oneLegRobotApp.sim().add(hinge3)
 
         # Create frames for upper and lower fwd section
         f5 = agx.Frame()
@@ -238,9 +237,8 @@ class CreateRobot():
 
         # Create hinge between upper and lower fwd section
         hinge4_range = [-math.pi/4, math.pi/4]
-        hinge4 = self.create_hinge_2RB(fwd_upper, f5, fwd_lower, f6, hinge4_range)
+        hinge4 = self.create_hinge_2RB(self.fwd_upper, f5, self.fwd_lower, f6, hinge4_range)
         self.hinge_list.append(hinge4)
-        #oneLegRobotApp.sim().add(hinge4)
 
         # Create end effector frame for lower aft and forward section.
         f7 = agx.Frame()
@@ -256,9 +254,8 @@ class CreateRobot():
         # --------- Create end effector -----------
         # Create hinge for end effector between lower aft and forward section.
         hinge5_range = [-math.pi/4, math.pi/4]
-        hinge5 = self.create_hinge_2RB(aft_lower, f7, fwd_lower, f8, hinge5_range)
+        hinge5 = self.create_hinge_2RB(self.aft_lower, f7, self.fwd_lower, f8, hinge5_range)
         self.hinge_list.append(hinge5)
-        #oneLegRobotApp.sim().add(hinge5)
 
         # Create frame for end-effector point as ball.
         f_end_effector = agx.Frame()
@@ -266,24 +263,14 @@ class CreateRobot():
         f_end_effector.setLocalRotate(agx.EulerAngles(math.radians(90), 0, 0))
         self.frame_list.append(f_end_effector)
 
-
-
-        #f10 = agx.Frame()
-        #f10.setLocalTranslate(agx.Vec3(0,0,0))
-        #ball = create_sphere(agx.Vec3(2,2,0), 0.1)
-        #ball.addAttachment(f10, "f10")
-        #oneLegRobotApp.sim().add(ball)
-
         # Create hinge for ball end-effector point
         hinge6_range = [-math.pi/4, math.pi/4]
         foot = create_sphere(agx.Vec3(0, 0, 0), 0.1)
         foot.addAttachment(f_end_effector, "position_end_effector")
-        oneLegRobotApp.sim().add(foot)
-        hinge6 = self.create_hinge_2RB(aft_lower, f7, foot, f_end_effector, hinge6_range)
+        self.robot_sim.add(foot)
+        hinge6 = self.create_hinge_2RB(self.aft_lower, f7, foot, f_end_effector, hinge6_range)
         hinge6.getLock1D().setEnable(True)
         self.hinge_list.append(hinge6)
-        #print("Number of DOF: ", hinge6.getNumDOF())
-        #oneLegRobotApp.sim().add(hinge6)
 
         # --------- Create frame at aft motor -----------
         # Create frame for motor aft.
