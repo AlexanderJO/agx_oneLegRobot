@@ -495,6 +495,53 @@ class FrameReader(agxSDK.StepEventListener):
         #print("Frame position: ", self.framePos)
 
 
+class ForceTopRobot(agxSDK.StepEventListener):
+    """
+    Adds controller to add force  floor in either x-, y- or z-direction or a combination of them.
+
+    floor : agx.Geometry()
+        Floor object
+    movement : List (x, y, z)
+        List of movements in x-, y- and z-direction
+    """
+
+    # Init settings
+    pos_aft_upper = None
+    pos_fwd_upper = None
+
+    def __init__(self, robot, movement_aft: agx.Vec3, movement_fwd: agx.Vec3,):
+        super().__init__(agxSDK.StepEventListener.PRE_STEP)
+
+        self.robot = robot
+        #self.hinge_aft = hinge_aft
+        #self.hinge_fwd = hinge_fwd
+        self.interval = 1
+        self.speed = 1
+        self.last = 0
+
+        self._omega = None
+        self._period = None
+        self.set_period(2)
+        self.amplitude = math.radians(35)
+        self._phase = 0
+        self.movement_aft = movement_aft
+        self.movement_fwd = movement_fwd
+
+    def get_period(self):
+        return self._period
+
+    def set_period(self, period: float):
+        f = 1 / period
+        self._period = period
+        self._omega = 2 * math.pi * f
+
+    def pre(self, time):
+        speed = self.amplitude * math.sin(self._omega * time + self._phase)
+        self.robot.set_upper_part_pos(agx.Vec3(speed * self.movement_aft[0], speed * self.movement_aft[1], speed * self.movement_aft[2]),
+                                      agx.Vec3(speed * self.movement_fwd[0], speed * self.movement_fwd[1], speed * self.movement_fwd[2]))
+        self.robot.update_model()
+
+
 class MoveFloorController(agxSDK.StepEventListener):
     """
     Moveable floor controller to move floor in either x-, y- or z-direction or a combination of them.
