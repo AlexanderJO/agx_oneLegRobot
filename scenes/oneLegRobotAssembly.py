@@ -450,7 +450,7 @@ def build_scene():
     # oneLegRobotApp.app().setGridSize(agx.Vec2(10,10))
 
     # Arrange camera to be centered around center of floor
-    oneLegRobotApp.init_camera(eye=agx.Vec3(20, 20, 30), center=floor.getPosition())
+    oneLegRobotApp.init_camera(eye=agx.Vec3(0, -50, 0), center=floor.getPosition())
 
 
 class HingePosition(agxSDK.StepEventListener):
