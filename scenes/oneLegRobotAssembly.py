@@ -400,7 +400,7 @@ def create_floor():
     """
     shape = agxCollide.Box(10, 10, 0.1)
     floor = agxCollide.Geometry(shape)
-    #oneLegRobotApp.create_visual(floor, diffuse_color=agxRender.Color.Green())
+    # oneLegRobotApp.create_visual(floor, diffuse_color=agxRender.Color.Green())
     floor.setPosition(0, 0, -0.3)
     oneLegRobotApp.sim().add(floor)
 
@@ -474,7 +474,7 @@ class HingePosition(agxSDK.StepEventListener):
 
     def pre(self, time):
         self.hinge_pos = self.hinge.getAttachment(self.index).getFrame().getTranslate()
-        #print("Hinge ", self.hinge_num, " position: ", self.hinge_pos)
+        # print("Hinge ", self.hinge_num, " position: ", self.hinge_pos)
 
 
 class FrameReader(agxSDK.StepEventListener):
