@@ -1007,11 +1007,19 @@ class EndEffectorController(agxSDK.StepEventListener):
                             if end_effector_current_pos[2] > 4.1 and end_effector_current_pos[2] < 4.3:
                                 print("Init z-position reached.")
                                 self.simulation_done = True
+
+    def add_ball(self, position: agx.Vec3, diam: float):
+        added = True
+        ball = create_sphere(position, diam)
+
+        return added, ball
+
+
     def pre(self, time):
         # Get desired angles
         self.motor_aft_angle_desired, self.motor_fwd_angle_desired = self.calculate_desired_angles(self.x, self.y, self.z, 50)
-        #print("Desired aft motor angle: ", self.motor_aft_angle_desired)
-        #print("Desired fwd motor angle: ", self.motor_fwd_angle_desired)
+        # print("Desired aft motor angle: ", self.motor_aft_angle_desired)
+        # print("Desired fwd motor angle: ", self.motor_fwd_angle_desired)
 
         # Count number of steps
         self.step = self.step + 1
