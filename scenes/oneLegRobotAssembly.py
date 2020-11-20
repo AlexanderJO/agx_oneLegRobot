@@ -805,9 +805,6 @@ class EndEffectorController(agxSDK.StepEventListener):
         # Running aft motor to desired angle
 
         diff_angle = desired_angle - self.angle_aft_current
-        #diff_angle = self.prev_angle_aft_current - self.angle_aft_current
-        #print(self.prev_angle_aft_current - self.angle_aft_current)
-        print(desired_angle - self.angle_aft_current)
 
         # if (desired_angle > 90 and self.angle_aft_current < 90):
         #     speed = -1
