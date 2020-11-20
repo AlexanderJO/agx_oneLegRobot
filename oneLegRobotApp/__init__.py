@@ -111,6 +111,10 @@ def create_sky():
 def init_camera(eye=agx.Vec3(-25, -25, 25), center=agx.Vec3(), up=agx.Vec3.Z_AXIS()):
     app().setCameraHome(eye, center, up)
 
+# Change the camera position
+def change_camera(eye=agx.Vec3(-25, -25, 25), center=agx.Vec3(), up=agx.Vec3.Z_AXIS()):
+    app().setCameraHome(eye, center, up)
+
 def get_contacts(body: agx.RigidBody) -> list:
     contacts = []
     contacts_ = agxCollide.GeometryContactPtrVector()
