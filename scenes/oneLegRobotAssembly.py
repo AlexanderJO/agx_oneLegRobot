@@ -925,34 +925,66 @@ class EndEffectorController(agxSDK.StepEventListener):
         self.prev_motor_fwd_angle_desired = self.motor_fwd_angle_desired
         self.prev_angle_fwd_current = self.angle_fwd_current
 
+    def get_simulation_mode(self):
+        if self.simulation_enabled:
+            simulation_mode = self.user_input.get_simulation_mode()
+            if simulation_mode == 1:
+                self.simulate_step = True
+            elif simulation_mode == 2:
+                self.simulate_ball = True
+            else:
+                print("No simulation mode enabled.")
+
     def demo_motor_step(self, time, interval):
-
         if time - self.last >= interval:
-            self.last = time
-            if self.x < 100 and self.moving_right:
-                #print("")
-                #print("I'm now going forwards.")
-                self.x = self.x + 20
-                self.y = 0
-                if self.x > 0:
-                    self.z = self.z - 15
-                else:
-                    self.z = self.z + 15
-            else:
-                self.moving_right = False
 
-            if self.x > -100 and not self.moving_right:
-                print("")
-                print("I'm now going backwards.")
-                print("Desired angle: ", self.motor_aft_angle_desired)
-                print("Current angle: ", self.angle_aft_current)
-                self.x = self.x - 20
-                if self.x > 0:
-                    self.z = self.z + 15
-                else:
-                    self.z = self.z - 15
+            end_effector_current_pos = self.get_end_effector_current_pos()
+            # print("X current: ", end_effector_current_pos[0])
+            # print("Y current: ", end_effector_current_pos[1])
+            # print("Z current: ", end_effector_current_pos[2])
+
+            if not self.ready_to_simulate:
+                self.x = 0
+                self.y = 0
+                self.z = 0
+
+                if end_effector_current_pos[0] > -self.error_margin and end_effector_current_pos[0] < self.error_margin:
+                    # print("Init x-position reached.")
+
+                    if end_effector_current_pos[2] > 4.1 and end_effector_current_pos[2] < 4.3:
+                        # print("Init z-position reached.")
+                        self.ready_to_simulate = True
+
             else:
-                self.moving_right = True
+                self.last = time
+                if self.x < 100 and self.moving_right:
+                    # print("")
+                    # print("I'm now going forwards.")
+                    self.x = self.x + 20
+                    self.y = 0
+                    if self.x > 0:
+                        self.z = self.z - 15
+                    else:
+                        self.z = self.z + 15
+                else:
+                    self.moving_right = False
+
+                if self.x > -100 and not self.moving_right:
+                    #print("")
+                    #print("I'm now going backwards.")
+                    #print("Desired angle: ", self.motor_aft_angle_desired)
+                    #print("Current angle: ", self.angle_aft_current)
+                    self.x = self.x - 20
+                    if self.x > 0:
+                        self.z = self.z + 15
+                    else:
+                        self.z = self.z - 15
+                else:
+                    self.moving_right = True
+
+                if self.x > -20 and self.x < 20:
+                    self.x = 0
+                    self.z = 0
 
     def demo_kick_a_ball(self, time, interval):
         # Variables for ball and positioning
