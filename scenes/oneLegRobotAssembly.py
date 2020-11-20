@@ -617,13 +617,13 @@ class InterpolationCalculator():
         self.step = step
 
 
-
-
 class MainUserInput():
     def __init__(self):
         self.x = 0
         self.y = 0
         self.z = 0
+        self.simulation_enabled = False
+        self.simulation_mode = int(0)
 
         self.user_input()
 
@@ -648,6 +648,23 @@ class MainUserInput():
                 continue
             else:
                 break
+
+        simulation_enabled_input = input("Simulation to be enabled [Y/N]: ")
+        if (simulation_enabled_input == "Y" or simulation_enabled_input == "y"):
+            self.simulation_enabled = True
+        else:
+            self.simulation_enabled = False
+
+        if self.simulation_enabled:
+            print("Select simulation mode.")
+            while True:
+                try:
+                    self.simulation_mode = int(input("Write 1 for robot stepping and 2 for kicking a ball: "))
+                except ValueError:
+                    print("Please insert only integers between 1 and 2. Try again.")
+                    continue
+                else:
+                    break
 
     def get_x(self):
         print("X input", self.x)
