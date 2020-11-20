@@ -299,52 +299,51 @@ class CreateRobot():
         hinge8_range = [-math.pi / 4, math.pi / 4]
         motor_fwd = create_sphere(agx.Vec3(0, 0, -self.size_upper[2] - self.reduced_length), 0.1)
         motor_fwd.addAttachment(f_motor_fwd, "motor_fwd")
-        oneLegRobotApp.sim().add(motor_fwd)
-        hinge8 = self.create_hinge_2RB(fwd_upper, f4, motor_fwd, f_motor_fwd, hinge8_range)
+        self.robot_sim.add(motor_fwd)
+        hinge8 = self.create_hinge_2RB(self.fwd_upper, f4, motor_fwd, f_motor_fwd, hinge8_range)
         hinge8.getLock1D().setEnable(True)
         self.hinge_list.append(hinge8)
 
         # --------- Reading data -----------
         # Read current frame position
         f_end_effector_pos = FrameReader(f_end_effector)
-        oneLegRobotApp.sim().add(f_end_effector_pos)
+        self.robot_sim.add(f_end_effector_pos)
 
         # Read current frame position
         f_motor_aft_pos = FrameReader(f_motor_aft)
-        oneLegRobotApp.sim().add(f_motor_aft_pos)
+        self.robot_sim.add(f_motor_aft_pos)
 
         # Read current frame position
         f_motor_fwd_pos = FrameReader(f_motor_fwd)
-        oneLegRobotApp.sim().add(f_motor_fwd_pos)
+        self.robot_sim.add(f_motor_fwd_pos)
 
         # --------- Reading data - Aft motor -----------
         # Read current hinge position
         hinge1_pos = HingePosition(hinge1, 1, 1)
-        oneLegRobotApp.sim().add(hinge1_pos)
+        self.robot_sim.add(hinge1_pos)
 
         # Read current hinge position
         hinge7_pos = HingePosition(hinge7, 7, 1)
-        oneLegRobotApp.sim().add(hinge7_pos)
+        self.robot_sim.add(hinge7_pos)
 
         # --------- Reading data - Aft motor -----------
         # Read current hinge position
         hinge3_pos = HingePosition(hinge3, 3, 1)
-        oneLegRobotApp.sim().add(hinge3_pos)
+        self.robot_sim.add(hinge3_pos)
 
         # Read current hinge position
         hinge8_pos = HingePosition(hinge8, 8, 1)
-        oneLegRobotApp.sim().add(hinge8_pos)
+        self.robot_sim.add(hinge8_pos)
 
         # --------- Reading data - Ball motor -----------
-
         # Read current hinge position
         hinge5_pos = HingePosition(hinge5, 5, 1)
-        oneLegRobotApp.sim().add(hinge5_pos)
+        self.robot_sim.add(hinge5_pos)
 
         # --------- Add to simulation -----------
         # Make the first motor swing back and forth
-        #speed_controller_aft = MotorSpeedController(hinge1, hinge3, 1, 2, aft_upper, fwd_upper, pos_upper_aft, pos_upper_fwd)
-        #oneLegRobotApp.sim().add(speed_controller_aft)
+        # speed_controller_aft = MotorSpeedController(hinge1, hinge3, 1, 2, aft_upper, fwd_upper, pos_upper_aft, pos_upper_fwd)
+        # oneLegRobotApp.sim().add(speed_controller_aft)
 
         # --------- Add to simulation -----------
         # Add hinges to simulation
