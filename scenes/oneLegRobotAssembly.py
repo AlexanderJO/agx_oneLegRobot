@@ -283,8 +283,8 @@ class CreateRobot():
         hinge7_range = [-math.pi / 4, math.pi / 4]
         motor_aft = create_sphere(agx.Vec3(0, 0, -self.size_upper[2]-self.reduced_length), 0.1)
         motor_aft.addAttachment(f_motor_aft, "motor_aft")
-        oneLegRobotApp.sim().add(motor_aft)
-        hinge7 = self.create_hinge_2RB(aft_upper, f1, motor_aft, f_motor_aft, hinge7_range)
+        self.robot_sim.add(motor_aft)
+        hinge7 = self.create_hinge_2RB(self.aft_upper, f1, motor_aft, f_motor_aft, hinge7_range)
         hinge7.getLock1D().setEnable(True)
         self.hinge_list.append(hinge7)
 
