@@ -372,8 +372,8 @@ class CreateRobot():
         hinge.getRange1D().setRange(range[0], range[1])
 
         # Sets the compliance of the hinge DOF.
-        hinge.setCompliance(1E-12)
-        hinge.getMotor1D().setCompliance(1E-10)
+        hinge.setCompliance(1E-8)                  # Init values: 1E-12
+        hinge.getMotor1D().setCompliance(1E-5)      # Init values: 1E-10
         hinge.getMotor1D().setEnable(False)
         hinge.getLock1D().setEnable(False)
 
