@@ -578,6 +578,23 @@ class MoveFloorController(agxSDK.StepEventListener):
         speed = self.amplitude * math.sin(self._omega * time + self._phase)
         self.floor.setPosition(speed * self.movement[0], speed * self.movement[1], speed * self.movement[2])
 
+        floor_pos = self.floor.getPosition()
+        oneLegRobotApp.change_camera(eye=agx.Vec3(0 + speed * self.movement[0],
+                                                  -50 + speed * self.movement[1],
+                                                  0),
+                                   center=agx.Vec3(floor_pos[0] + speed * self.movement[0],
+                                                   floor_pos[1] + speed * self.movement[1],
+                                                   floor_pos[2]+speed * self.movement[2]))
+
+        # oneLegRobotApp.agxOSG.setOrbitCamera(eye=agx.Vec3(0 + speed * self.movement[0], -30 + speed * self.movement[1], 0),
+        #                            center=agx.Vec3(floor_pos[0] + speed * self.movement[0], floor_pos[1] + speed * self.movement[1], floor_pos[2]+speed * self.movement[2]))
+        # RenderToImage(RenderTarget)
+        # oneLegRobotApp.agxOSG.RenderTarget.setViewMatrixAsLookAt(eye=agx.Vec3(0 + speed * self.movement[0], -30 + speed * self.movement[1], 0),
+        #                                                          center=agx.Vec3(floor_pos[0] + speed * self.movement[0], floor_pos[1] + speed * self.movement[1], floor_pos[2]+speed * self.movement[2]))
+
+        #oneLegRobotApp.change_camera()
+        # up=agx.Vec3(agx.Vec3_Z_AXIS() + speed * self.movement[2])
+
 
 class UpdateHingeAngle(agxSDK.StepEventListener):
     def __init__(self, hinge):
