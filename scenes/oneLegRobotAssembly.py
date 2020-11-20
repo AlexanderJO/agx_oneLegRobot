@@ -782,6 +782,10 @@ class EndEffectorController(agxSDK.StepEventListener):
     def get_angle_fwd(self):
         return self.angle_fwd_current
 
+    def get_end_effector_current_pos(self):
+        end_effector_pos = self.end_effector.getAttachment(1).getFrame().getTranslate()
+        return end_effector_pos
+
     def update_angle(self):
         self.angle_aft_current = math.degrees(self.motor_aft.getAngle()) - 360*self.angle_aft_turns + 270
         if self.angle_aft_current > 360:
