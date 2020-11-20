@@ -551,7 +551,7 @@ class MoveFloorController(agxSDK.StepEventListener):
     movement : List (x, y, z)
         List of movements in x-, y- and z-direction
     """
-    def __init__(self, floor, movement):
+    def __init__(self, robot, floor, movement: agx.Vec3):
         super().__init__(agxSDK.StepEventListener.PRE_STEP)
 
         self.floor = floor
