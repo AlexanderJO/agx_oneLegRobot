@@ -180,10 +180,9 @@ class CreateRobot():
 
         # Create hinge to aft motor
         hinge1_range = [-math.pi / 4, math.pi / 4]
-        hinge1 = self.create_hinge_1RB(aft_upper, f1, hinge1_range)
+        hinge1 = self.create_hinge_1RB(self.aft_upper, f1, hinge1_range)
         hinge1.getLock1D().setEnable(True)
         self.hinge_list.append(hinge1)
-        #oneLegRobotApp.sim().add(hinge1)
 
         # Create frames for upper and lower aft section
         f2 = agx.Frame()
