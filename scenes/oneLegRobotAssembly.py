@@ -17,7 +17,7 @@ second_joint_shape_fwd = oneLegRobotApp.load_shape('assets/Bein - Ledd 2 v2.obj'
 MODEL_SCALE = 1/100
 
 # Debugging variable
-debugging = bool(True)
+debugging = bool(False)
 
 # Define the initial parameters of the robot legs lengths
 L_1 = int(120)              # Section length of first aft section
