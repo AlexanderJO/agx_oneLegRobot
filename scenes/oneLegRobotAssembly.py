@@ -197,20 +197,20 @@ class CreateRobot():
 
         # Create hinge between upper and lower fwd section
         hinge2_range = [-math.pi/4, math.pi/4]
-        hinge2 = self.create_hinge_2RB(aft_upper, f2, aft_lower, f3, hinge2_range)
+        hinge2 = self.create_hinge_2RB(self.aft_upper, f2, self.aft_lower, f3, hinge2_range)
         self.hinge_list.append(hinge2)
-        #oneLegRobotApp.sim().add(hinge2)
 
         # --------- Create fwd section -----------
-        pos_upper_fwd = [-L_5*MODEL_SCALE, 0, 3.1 + self.increase_height]
-        pos_lower_fwd = [-L_5*MODEL_SCALE, 0, 1.3 + self.increase_height-1]
-        fwd_upper, fwd_lower = create_bodies(position1=pos_upper_fwd, position2=pos_lower_fwd,
+        pos_upper_fwd = [-L_5*MODEL_SCALE, 0, 3.1 + self.increase_height + self.pos_upper_fwd_mod[2]]
+        pos_lower_fwd = [-L_5*MODEL_SCALE, 0, 1.3 + self.increase_height-1 + self.pos_upper_fwd_mod[2]]
+
+        self.fwd_upper, self.fwd_lower = create_bodies(position1=pos_upper_fwd, position2=pos_lower_fwd,
                                              size_upper=self.size_upper, size_lower=self.size_lower, scale=MODEL_SCALE,
                                              reduced_length=self.reduced_length)
 
         # Add upper and lower sections of aft part of robot to simulation
-        oneLegRobotApp.sim().add(fwd_upper)
-        oneLegRobotApp.sim().add(fwd_lower)
+        self.robot_sim.add(self.fwd_upper)
+        self.robot_sim.add(self.fwd_lower)
 
         # Create frame for forward motor
         f4 = agx.Frame()
