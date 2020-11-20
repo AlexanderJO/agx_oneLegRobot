@@ -561,8 +561,8 @@ class MoveFloorController(agxSDK.StepEventListener):
 
         self._omega = None
         self._period = None
-        self.set_period(2)
-        self.amplitude = math.radians(35)
+        self.set_period(12)
+        self.amplitude = math.radians(90)
         self._phase = 0
         self.movement = movement
 
