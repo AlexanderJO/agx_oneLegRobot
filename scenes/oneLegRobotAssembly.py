@@ -945,6 +945,68 @@ class EndEffectorController(agxSDK.StepEventListener):
             else:
                 self.moving_right = True
 
+    def demo_kick_a_ball(self, time, interval):
+        # Variables for ball and positioning
+        diam_ball = 0.5
+
+        if time - self.last >= interval:
+            if not self.simulation_done:
+                self.last = time
+                floor_pos = self.floor.getPosition()
+                ball_pos = agx.Vec3(1, 0, floor_pos[2] + diam_ball / 2 + 0.1)
+                end_effector_current_pos = self.get_end_effector_current_pos()
+
+                if not self.ball_shot:
+
+                    if not self.ball_active:
+                        self.ball_active, ball = self.add_ball(ball_pos, diam_ball)
+                        oneLegRobotApp.sim().add(ball)
+
+                    if not self.ready_to_simulate:
+                        print("Not ready to simulate!")
+                        self.x = 0
+                        self.y = 0
+                        self.z = 0
+
+                        if end_effector_current_pos[0] > self.x - self.error_margin and end_effector_current_pos[
+                            0] < self.x + self.error_margin:
+                            print("Init x-position reached.")
+
+                            if end_effector_current_pos[2] > 4.1 and end_effector_current_pos[2] < 4.3:
+                                print("Init z-position reached.")
+                                self.ready_to_simulate = True
+                    else:
+                        if not self.ready_to_shoot:
+                            print("Not ready to shoot.")
+                            print("X: ", self.x, "Y: ", self.y, "Z: ", self.z)
+                            self.x = ball_pos[0] * 50 - 75
+                            self.y = ball_pos[1] * 50
+                            self.z = ball_pos[2] * 50 - 2 * 90
+
+                            if end_effector_current_pos[0] > self.x / 50 - self.error_margin and end_effector_current_pos[0] < self.x / 50 + self.error_margin:
+                                print(end_effector_current_pos[2])
+                                print(ball_pos[2] - diam_ball)
+                                print(ball_pos[2] + diam_ball)
+                                if end_effector_current_pos[2] > ball_pos[2] - diam_ball - self.error_margin and end_effector_current_pos[2] < ball_pos[2] + diam_ball + self.error_margin:
+                                    self.ready_to_shoot = True
+                                    print("Ready to shoot now!")
+                        else:
+                            self.x = ball_pos[0] * 50 - 10
+                            self.speed = 3
+                            self.ball_shot = True
+
+                else:
+                    if end_effector_current_pos[0] > self.x / 50 - self.error_margin and end_effector_current_pos[0] < self.x / 50 + self.error_margin:
+                        self.x = 0
+                        self.speed = 1
+
+                        if end_effector_current_pos[0] > self.x - self.error_margin and end_effector_current_pos[0] < self.x + self.error_margin:
+                            print("Init x-position reached.")
+                            self.z = 0
+
+                            if end_effector_current_pos[2] > 4.1 and end_effector_current_pos[2] < 4.3:
+                                print("Init z-position reached.")
+                                self.simulation_done = True
     def pre(self, time):
         # Get desired angles
         self.motor_aft_angle_desired, self.motor_fwd_angle_desired = self.calculate_desired_angles(self.x, self.y, self.z, 50)
