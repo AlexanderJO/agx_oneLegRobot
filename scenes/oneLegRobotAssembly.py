@@ -138,17 +138,39 @@ class CreateRobot():
         self.size_upper = UPPER_LEG_SECTION_SIZE
         self.size_lower = LOWER_LEG_SECTION_SIZE
 
+    def set_upper_part_pos(self, upper_aft_pos: agx.Vec3, upper_fwd_pos: agx.Vec3):
+        self.pos_upper_aft_mod = upper_aft_pos
+        self.pos_upper_fwd_mod = upper_fwd_pos
+
+    def update_upper_aft_pos(self, upper_aft_pos: agx.Vec3):
+        self.pos_upper_aft_mod = upper_aft_pos
+
+    def update_upper_fwd_pos(self, upper_fwd_pos: agx.Vec3):
+        self.pos_upper_fwd_mod = upper_fwd_pos
+
+    def update_model(self):
+        aft_upper_pos_current = self.aft_upper.getPosition()
+        self.aft_upper.setPosition(aft_upper_pos_current[0] + self.pos_upper_aft_mod[0],
+                                   aft_upper_pos_current[1] + self.pos_upper_aft_mod[1],
+                                   aft_upper_pos_current[2] + self.pos_upper_aft_mod[2])
+
+        fwd_upper_pos_current = self.aft_upper.getPosition()
+        self.fwd_upper.setPosition(fwd_upper_pos_current[0] + self.pos_upper_fwd_mod[0],
+                                   fwd_upper_pos_current[1] + self.pos_upper_fwd_mod[1],
+                                   fwd_upper_pos_current[2] + self.pos_upper_fwd_mod[2])
+
     def create_joints(self):
         # --------- Create aft section -----------
-        pos_upper_aft = [L_5*MODEL_SCALE, 0, 3.1 + self.increase_height]
-        pos_lower_aft = [L_5*MODEL_SCALE, 0, 1.3 + self.increase_height-1]
-        aft_upper, aft_lower = create_bodies(position1=pos_upper_aft, position2=pos_lower_aft,
+        pos_upper_aft = [L_5*MODEL_SCALE, 0, 3.1 + self.increase_height + self.pos_upper_aft_mod[2]]
+        pos_lower_aft = [L_5*MODEL_SCALE, 0, 1.3 + self.increase_height - 1 + self.pos_upper_aft_mod[2]]
+
+        self.aft_upper, self.aft_lower = create_bodies(position1=pos_upper_aft, position2=pos_lower_aft,
                                              size_upper=self.size_upper, size_lower=self.size_lower, scale=MODEL_SCALE,
                                              reduced_length=self.reduced_length)
 
         # Add upper and lower sections of aft part of robot to simulation
-        oneLegRobotApp.sim().add(aft_upper)
-        oneLegRobotApp.sim().add(aft_lower)
+        self.robot_sim.add(self.aft_upper)
+        self.robot_sim.add(self.aft_lower)
 
         # Create frame for aft motor
         f1 = agx.Frame()
