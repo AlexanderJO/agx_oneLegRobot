@@ -1083,7 +1083,12 @@ class EndEffectorController(agxSDK.StepEventListener):
         # print("----- Fwd section -----")
         # print("Angle fwd:     ", self.angle_fwd_current)
 
-        self.demo_motor_step(time, 0.5)
+        if self.simulation_enabled:
+            if self.simulate_step:
+                self.demo_motor_step(time, self.interval)
+            elif self.simulate_ball:
+                self.demo_kick_a_ball(time, self.interval)
+
 
 class MotorSpeedController(agxSDK.StepEventListener):
     def __init__(self, motor_aft, motor_fwd, speed, interval, rb1, rb2, init_pos_rb1, init_pos_rb2):
