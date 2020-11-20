@@ -720,25 +720,33 @@ class EndEffectorController(agxSDK.StepEventListener):
         self.x = 0
         self.y = 0
         self.z = 0
+        self.x_current = None
+        self.y_current = None
+        self.x_current = None
 
         # Assign some variables that the listener needs
         self.interval = interval
-        #self.interval = 3
         self.speed = float(speed)
         self.last = 0
         self.motor_aft = motor_aft
         self.motor_fwd = motor_fwd
+        self.end_effector = end_effector
+        self.floor = floor
+
         self.step = 0
         self.error = error
         self.motor_aft_on = False
         self.motor_fwd_on = False
         self.moving_right = True
+        self.ready_to_simulate = False
 
         self.hinge_free = False
         self.enable_motor()
 
         self.user_input = MainUserInput()
         self.set_end_effector_pos()
+        self.simulation_enabled = self.user_input.get_simulation_enabled()
+        self.simulation_mode = self.get_simulation_mode()
 
     def set_end_effector_pos(self):
         self.x = self.user_input.get_x()
