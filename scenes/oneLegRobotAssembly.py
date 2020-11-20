@@ -118,6 +118,18 @@ class CreateRobot():
     hinge_list = list()
     frame_list = list()
 
+    # Modifiers for x-, y- and z-direction to upper part of robot.
+    pos_upper_aft_mod = agx.Vec3(0, 0, 0)
+    pos_upper_fwd_mod = agx.Vec3(0, 0, 0)
+
+    robot_sim = oneLegRobotApp.sim()
+
+    # Init holders for robot object
+    aft_upper = None
+    aft_lower = None
+    fwd_upper = None
+    fwd_lower = None
+
     def __init__(self):
         # Initial setup
         self.hinge_counter = 0
