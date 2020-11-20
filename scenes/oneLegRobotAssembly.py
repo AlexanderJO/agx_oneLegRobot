@@ -678,10 +678,27 @@ class MainUserInput():
         print("Z input", self.z)
         return self.z
 
+    def get_simulation_enabled(self):
+        print("Simulation enabled: ", self.simulation_enabled)
+        return self.simulation_enabled
+
+    def get_simulation_mode(self):
+        print("Simulation ", self.simulation_mode, " selected.")
+        return self.simulation_mode
+
 
 class EndEffectorController(agxSDK.StepEventListener):
 
-    def __init__(self, motor_aft, motor_fwd, error, speed, interval):
+    # Demo variables
+    simulation_done = False
+    ball_active = False
+    ready_to_shoot = False
+    ball_shot = False
+    error_margin = 0.1
+    simulate_step = False
+    simulate_ball = False
+
+    def __init__(self, motor_aft, motor_fwd, end_effector, floor, error, speed, interval):
         super().__init__(agxSDK.StepEventListener.PRE_STEP)
         # Aft section
         self.angle_aft_current = 0
