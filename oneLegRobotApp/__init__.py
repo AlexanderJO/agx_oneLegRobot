@@ -1,3 +1,7 @@
+# Initially created by: Lars Ivar Hatledal
+# Modified by: One Legged Robot group.
+
+# Import libraries
 import osg
 import agxOSG
 import agxIO

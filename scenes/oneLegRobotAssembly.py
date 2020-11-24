@@ -1,11 +1,13 @@
-import agx
-import agxCollide
-import agxSDK
-import agxRender
-from agxRender import Color
+# Import libraries
+import agx                  # Imports agx module
+import agxCollide           # Imports agxCollide module
+import agxSDK               # Imports agxSDK module
+import agxIO                # Imports agxIO module
+import agxRender            # Imports agxRender module
+from agxRender import Color # Imports Color class of agxRender module
 
-import math
-import oneLegRobotApp
+import math                 # Import math module
+import oneLegRobotApp       # Imports application folder
 
 # Import shapes as .obj files
 first_joint_shape_aft = oneLegRobotApp.load_shape('assets/bein - ledd 1 v2.obj')
@@ -74,6 +76,15 @@ def create_bodies(position1, position2, size_upper, size_lower, scale, reduced_l
     return upper, lower
 
 
+def create_box(size):
+    body = agx.RigidBody()
+    shape = agxCollide.Box(size[0], size[1], size[2])
+    geometry = agxCollide.Geometry(shape)
+    body.add(geometry)
+
+    return body
+
+
 def create_box_mod(size, reduced_length):
     body = agx.RigidBody()
     shape = agxCollide.Box(size[0], size[1], size[2] - reduced_length)
@@ -122,6 +133,7 @@ class CreateRobot():
     pos_upper_aft_mod = agx.Vec3(0, 0, 0)
     pos_upper_fwd_mod = agx.Vec3(0, 0, 0)
 
+    # Robot simulator for robot created.
     robot_sim = oneLegRobotApp.sim()
 
     # Init holders for robot object
@@ -131,6 +143,9 @@ class CreateRobot():
     fwd_lower = None
 
     def __init__(self):
+        """
+        Constructor initializing the CreateRobot() class.
+        """
         # Initial setup
         self.hinge_counter = 0
         self.reduced_length = 0.5
@@ -139,16 +154,35 @@ class CreateRobot():
         self.size_lower = LOWER_LEG_SECTION_SIZE
 
     def set_upper_part_pos(self, upper_aft_pos: agx.Vec3, upper_fwd_pos: agx.Vec3):
+        """
+        Method setting the new coordinates of upper aft and forward position.
+
+        :param upper_aft_pos: New coordiantes in agx.Vec3() format.
+        :param upper_fwd_pos: New coordiantes in agx.Vec3() format.
+        """
         self.pos_upper_aft_mod = upper_aft_pos
         self.pos_upper_fwd_mod = upper_fwd_pos
 
     def update_upper_aft_pos(self, upper_aft_pos: agx.Vec3):
+        """
+        Method updating the new coordinates of the upp aft leg (A1).
+
+        :param upper_aft_pos: New coordiantes in agx.Vec3() format.
+        """
         self.pos_upper_aft_mod = upper_aft_pos
 
     def update_upper_fwd_pos(self, upper_fwd_pos: agx.Vec3):
+        """
+        Method updating the new coordinates of the upp forward leg (A2).
+
+        :param upper_fwd_pos: New coordiantes in agx.Vec3() format.
+        """
         self.pos_upper_fwd_mod = upper_fwd_pos
 
     def update_model(self):
+        """
+        Method updating the reference frame with relation to current global coordinates.
+        """
         aft_upper_pos_current = self.aft_upper.getPosition()
         self.aft_upper.setPosition(aft_upper_pos_current[0] + self.pos_upper_aft_mod[0],
                                    aft_upper_pos_current[1] + self.pos_upper_aft_mod[1],
@@ -160,6 +194,9 @@ class CreateRobot():
                                    fwd_upper_pos_current[2] + self.pos_upper_fwd_mod[2])
 
     def create_joints(self):
+        """
+        Method creating the rigid body connected with all joints.
+        """
         # --------- Create aft section -----------
         pos_upper_aft = [L_5*MODEL_SCALE, 0, 3.1 + self.increase_height + self.pos_upper_aft_mod[2]]
         pos_lower_aft = [L_5*MODEL_SCALE, 0, 1.3 + self.increase_height - 1 + self.pos_upper_aft_mod[2]]
@@ -366,13 +403,26 @@ class CreateRobot():
         return self.frame_list
 
     def create_hinge_1RB(self, rb1, frame1, range):
+        """
+        Method creating a hinge for a single rigid body with a limiting frame.
+
+        rb1 : agx.rigidBody()
+            Rigid body object
+        frame1 : agx.frame()
+            Frame for rigid body object
+        range : array (<min, max>)
+            Array showing mininimum and maximum range of hinge.
+
+        Return  : agx.Hinge()
+            Returns the hinge object based on the input parameters.
+        """
         hinge = agx.Hinge(rb1, frame1)
 
         # Sets the angular range of the hinge.
         hinge.getRange1D().setRange(range[0], range[1])
 
         # Sets the compliance of the hinge DOF.
-        hinge.setCompliance(1E-8)                  # Init values: 1E-12
+        hinge.setCompliance(1E-12)                  # Init values: 1E-12
         hinge.getMotor1D().setCompliance(1E-5)      # Init values: 1E-10
         hinge.getMotor1D().setEnable(False)
         hinge.getLock1D().setEnable(False)
@@ -380,6 +430,23 @@ class CreateRobot():
         return hinge
 
     def create_hinge_2RB(self, rb1, frame1, rb2, fram2, range):
+        """
+        Method creating a hinge between two rigid bodies, each with a limiting frame.
+
+        rb1 : agx.rigidBody()
+            First rigid body object
+        frame1 : agx.frame()
+            First frame for rigid body object
+        rb2 : agx.rigidBody()
+            Second rigid body object
+        frame2 : agx.frame()
+            Second frame for rigid body object
+        range : array (<min, max>)
+            Array showing mininimum and maximum range of hinge.
+
+        Return  : agx.Hinge()
+            Returns the hinge object based on the input parameters.
+        """
         hinge = agx.Hinge(rb1, frame1, rb2, fram2)
 
         # Sets the angular range of the hinge.
@@ -397,6 +464,8 @@ class CreateRobot():
 def create_floor():
     """
     Builds the flooring of the simulation.
+
+    :return floor geometry
     """
     shape = agxCollide.Box(10, 10, 0.1)
     floor = agxCollide.Geometry(shape)
@@ -437,9 +506,9 @@ def build_scene():
     # oneLegRobotApp.sim().add(robot_force_controller)
 
     # Moveable floor controller
-    movement = agx.Vec3(0, 0, 0.9)
-    floor_controller = MoveFloorController(robot=robot, floor=floor, movement=movement)
-    oneLegRobotApp.sim().add(floor_controller)
+    #movement = agx.Vec3(0, 0, 0.9)
+    #floor_controller = MoveFloorController(robot=robot, floor=floor, movement=movement)
+    #oneLegRobotApp.sim().add(floor_controller)
 
     # Rendering details
     oneLegRobotApp.app().getSceneDecorator().setEnableShadows(True)
@@ -450,7 +519,7 @@ def build_scene():
     # oneLegRobotApp.app().setGridSize(agx.Vec2(10,10))
 
     # Arrange camera to be centered around center of floor
-    oneLegRobotApp.init_camera(eye=agx.Vec3(0, -50, 0), center=floor.getPosition())
+    oneLegRobotApp.init_camera(eye=agx.Vec3(20, -50, 0), center=floor.getPosition())
 
 
 class HingePosition(agxSDK.StepEventListener):
@@ -472,6 +541,11 @@ class HingePosition(agxSDK.StepEventListener):
         self.hinge_num = hinge_num
         self.hinge_pos = None
 
+    def get_hinge_pos(self):
+        """return : agx.Vec3
+            Returns the position of the hinge in agx.Vec3 format."""
+        return self.hinge_pos
+
     def pre(self, time):
         self.hinge_pos = self.hinge.getAttachment(self.index).getFrame().getTranslate()
         # print("Hinge ", self.hinge_num, " position: ", self.hinge_pos)
@@ -488,10 +562,13 @@ class FrameReader(agxSDK.StepEventListener):
         super().__init__(agxSDK.StepEventListener.PRE_STEP)
 
         self.frame = frame
-        self.framePos = None
+        self.frame_pos = None
+
+    def get_frame_pos(self):
+        return self.frame_pos
 
     def pre(self, time):
-        self.framePos = self.frame.getTranslate()
+        self.frame_pos = self.frame.getTranslate()
         #print("Frame position: ", self.framePos)
 
 
@@ -597,6 +674,9 @@ class MoveFloorController(agxSDK.StepEventListener):
 
 
 class UpdateHingeAngle(agxSDK.StepEventListener):
+    """
+    Class updating the hinge angles with agxSDK.StepEventListener.
+    """
     def __init__(self, hinge):
         super().__init__(agxSDK.StepEventListener.PRE_STEP)
 
@@ -610,15 +690,12 @@ class UpdateHingeAngle(agxSDK.StepEventListener):
         self.angle = self.hinge.getAngle()
 
 
-class InterpolationCalculator():
-    def __init__(self, x_desired, x_current, step):
-        self.x_desired = x_desired
-        self.x_current = x_current
-        self.step = step
-
-
 class MainUserInput():
+    """
+    Class initialized for user input at start of simulation.
+    """
     def __init__(self):
+        """Initializes variables necessary for class."""
         self.x = 0
         self.y = 0
         self.z = 0
@@ -688,7 +765,10 @@ class MainUserInput():
 
 
 class EndEffectorController(agxSDK.StepEventListener):
-
+    """
+    Class for end effector controller using agxSDK.StepEventListener.
+    Updates for every iteration.
+    """
     # Demo variables
     simulation_done = False
     ball_active = False
@@ -926,6 +1006,7 @@ class EndEffectorController(agxSDK.StepEventListener):
         self.prev_angle_fwd_current = self.angle_fwd_current
 
     def get_simulation_mode(self):
+        """Sets the selected simulation mode."""
         if self.simulation_enabled:
             simulation_mode = self.user_input.get_simulation_mode()
             if simulation_mode == 1:
@@ -936,6 +1017,12 @@ class EndEffectorController(agxSDK.StepEventListener):
                 print("No simulation mode enabled.")
 
     def demo_motor_step(self, time, interval):
+        """
+        Starts a demo of the one legged robot, taking a step and updating for every iteration.
+
+        :param time : Holds the time.
+        :param interval : The interval between each iteration.
+        """
         if time - self.last >= interval:
 
             end_effector_current_pos = self.get_end_effector_current_pos()
@@ -944,6 +1031,7 @@ class EndEffectorController(agxSDK.StepEventListener):
             # print("Z current: ", end_effector_current_pos[2])
 
             if not self.ready_to_simulate:
+                """Checks if ready to simulate."""
                 self.x = 0
                 self.y = 0
                 self.z = 0
@@ -956,6 +1044,7 @@ class EndEffectorController(agxSDK.StepEventListener):
                         self.ready_to_simulate = True
 
             else:
+                """Ready to simulate."""
                 self.last = time
                 if self.x < 100 and self.moving_right:
                     # print("")
@@ -987,6 +1076,13 @@ class EndEffectorController(agxSDK.StepEventListener):
                     self.z = 0
 
     def demo_kick_a_ball(self, time, interval):
+        """
+        Starts a demo of the one legged robot, starting a pre-defined kicing of a ball.
+        After ball is kicked goes back to initial position. Updating for every iteration.
+
+        :param time : Holds the time.
+        :param interval : The interval between each iteration.
+        """
         # Variables for ball and positioning
         diam_ball = 0.5
 
@@ -1050,13 +1146,20 @@ class EndEffectorController(agxSDK.StepEventListener):
                                 self.simulation_done = True
 
     def add_ball(self, position: agx.Vec3, diam: float):
+        """
+        Creates a ball object.
+
+        :param position : The position of the ball in agx.Vec3 format.
+        :param diam : Diameter of the ball in float.
+        :return added as bool and ball object.
+        """
         added = True
         ball = create_sphere(position, diam)
 
         return added, ball
 
-
     def pre(self, time):
+        """Iteration method."""
         # Get desired angles
         self.motor_aft_angle_desired, self.motor_fwd_angle_desired = self.calculate_desired_angles(self.x, self.y, self.z, 50)
         # print("Desired aft motor angle: ", self.motor_aft_angle_desired)
@@ -1091,6 +1194,10 @@ class EndEffectorController(agxSDK.StepEventListener):
 
 
 class MotorSpeedController(agxSDK.StepEventListener):
+    """
+    Class for controlling the motor A1 and A2.
+    Updates for every iteration.
+    """
     def __init__(self, motor_aft, motor_fwd, speed, interval, rb1, rb2, init_pos_rb1, init_pos_rb2):
         super().__init__(agxSDK.StepEventListener.PRE_STEP)
 
@@ -1200,13 +1307,22 @@ class MotorSpeedController(agxSDK.StepEventListener):
 
 
 def calculate_motor_angle_fwd(x, y, z, scale):
+    """
+    Inverse kinematics model.
+    :param x: Position x of fwd motor A1 in int.
+    :param y: Position y of fwd motor A1 in int.
+    :param z: Position z of fwd motor A1 in int.
+    :param scale: Scale of system in int.
+    :return: Returns the motor angle theta_2 for fwd motor A2.
+    """
     # Calculate for fwd motor
     global x_A1, z_A1, theta_1, theta_2, theta_3, theta_4, theta_9
     x_A1 = (restX + x) / scale
     z_A1 = (restZ - z) / scale
     theta_1 = 180 - math.degrees(math.atan2(z_A1, x_A1))
     theta_4 = math.degrees(
-        math.acos((math.pow(x_A1, 2) + math.pow(z_A1, 2) - math.pow((L_1 / scale), 2) - math.pow((L_2 / scale), 2)) / (2 * (L_1 / scale) * (L_2 / scale))))
+        math.acos((math.pow(x_A1, 2) + math.pow(z_A1, 2) - math.pow((L_1 / scale), 2) - math.pow((L_2 / scale), 2)) /
+                  (2 * (L_1 / scale) * (L_2 / scale))))
     theta_9 = math.degrees(
         math.asin(((L_1 / scale) / math.sqrt(math.pow(x_A1,2) + math.pow(z_A1, 2))) * math.sin(math.radians(theta_4))))
     theta_3 = 180 - (180-theta_4) - theta_9
@@ -1226,13 +1342,22 @@ def calculate_motor_angle_fwd(x, y, z, scale):
 
 
 def calculate_motor_angle_aft(x, y, z, scale):
+    """
+    Inverse kinematics model.
+    :param x: Position x of aft motor A1 in int.
+    :param y: Position y of aft motor A1 in int.
+    :param z: Position z of aft motor A1 in int.
+    :param scale: Scale of system in int.
+    :return: Returns the motor angle theta_6 for aft motor A1.
+    """
     # Calculate for aft motor
     global x_A2, z_A2, theta_5, theta_6, theta_7, theta_8, theta_10
     x_A2 = (restX - x) / scale
     z_A2 = (restZ - z) / scale
     theta_5 = 180 - math.degrees(math.atan2(z_A2, x_A2))
     theta_8 = math.degrees(
-        math.acos((math.pow(x_A2, 2) + math.pow(z_A2, 2) - math.pow((L_3 / scale), 2) - math.pow((L_4 / scale), 2)) / (2 * (L_3 / scale) * (L_4 / scale))))
+        math.acos((math.pow(x_A2, 2) + math.pow(z_A2, 2) - math.pow((L_3 / scale), 2) - math.pow((L_4 / scale), 2)) /
+                  (2 * (L_3 / scale) * (L_4 / scale))))
     theta_10 = math.degrees(
         math.asin(((L_3 / scale) / math.sqrt(math.pow(x_A2, 2) + math.pow(z_A2, 2))) * math.sin(math.radians(theta_8))))
     theta_7 = 180 - (180 - theta_8) - theta_10
@@ -1272,146 +1397,33 @@ def print_debug_list():
         print("")
 
 
+def scale_mesh(vertices: agx.Vec3Vector, scale: agx.Vec3):
+    """
+    Scales the vectorized object.
+    :param vertices: Vertices as 3-dimensional vector in agx.Vec3Vector.
+    :param scale: Scale of the vectorized object in int.
+    :return: Returns the scaled vectorized object.
+    """
+    scaled = agx.Vec3Vector()
 
+    for v in vertices:
+        scaled.append(agx.Vec3.mul(v, scale))
 
+    return scaled
 
+def scale_rb(objectLink: str, scale: int):
+    """
+    Scaling the imported file.
+    :param objectLink: Link to the object as string.
+    :param scale: Scale of the rigid body in int.
+    :return: Returns the scaled down rigid body of the imported file.
+    """
+    mesh_reader = agxIO.MeshReader()
+    mesh_reader.readFile(objectLink)
 
+    # Correcting scale because file scale is centimeters.
+    scaled_vertices = scale_mesh(mesh_reader.getVertices(), agx.Vec3(1/scale))
+    trimesh = agxCollide.Trimesh(scaled_vertices, mesh_reader.getIndices(), "rigidBody")
+    rigidBody = agx.RigidBody(agxCollide.Geometry(trimesh))
 
-
-
-
-
-
-
-
-
-
-
-# Create two boxes at the given positions, with the specified size
-def create_bodies_old(position1, position2, size):
-
-
-
-    b1 = agx.RigidBody()
-    # geometry = agxCollide.Geometry(first_joint_shape_aft.deepCopy(),
-    #                                agx.AffineMatrix4x4.translate(20, 0, 240))
-    # geometry.setLocalRotation(agx.EulerAngles(0, 0, 0))
-    # geometry.setEnableCollisions(True)
-    # b1 = agx.RigidBody(geometry)
-    # #rigidBody.setMotionControl(agx.RigidBody.DYNAMICS)
-    # #oneLegRobotApp.create_visual(rigidBody, agxRender.Color.Red())
-
-
-
-
-    b2 = agx.RigidBody()
-    # geometry = agxCollide.Geometry(second_joint_shape_aft.deepCopy(),
-    #                                agx.AffineMatrix4x4.translate(0, 0, 0))
-    # geometry.setLocalRotation(agx.EulerAngles(0, 0, 0))
-    # #geometry.setEnableCollisions(True)
-    # b2 = agx.RigidBody(geometry)
-
-    b1.add(agxCollide.Geometry(agxCollide.Box(size[0], size[1], size[2])))
-    b2.add(agxCollide.Geometry(agxCollide.Box(size[0], size[1], size[2])))
-
-    b1.setPosition(agx.Vec3(position1[0], position1[1], position1[2]))
-    b2.setPosition(agx.Vec3(position2[0], position2[1], position2[2]))
-
-    return b1, b2
-
-
-# Create a hinge scene
-def create_one_leg_robot_scene():
-    # Create floor
-    floor = agxCollide.Geometry(agxCollide.Box(250, 250, 10))
-    floor.setPosition(0, 0, -400)
-    oneLegRobotApp.sim().add(floor)
-
-    size = [0.5, 0.25, 1]
-    #b1, b2 = create_bodies([0, 0, 0], [0, 0, - 2.5], size)
-
-
-    posAftUpper = [0, 0, 0]
-    posAftLower = [0, 0, -2.5]
-    b1, b2 = build_aft_part(posAftUpper, posAftLower)
-
-    b2.setParentFrame(floor.getParentFrame())
-
-    oneLegRobotApp.sim().add(b1)
-    oneLegRobotApp.sim().add(b2)
-
-    f1 = agx.Frame()
-    f1.setLocalTranslate(0*MODEL_SCALE, 0*MODEL_SCALE, posAftUpper[2]*MODEL_SCALE)
-    f1.setLocalRotate(agx.EulerAngles(0, math.radians(90), 0))
-
-    hinge1 = agx.Hinge(b1, f1)
-    oneLegRobotApp.sim().add(hinge1)
-
-    # Make the first motor swing back and forth
-    #speed_controller = AlternatingSpeedController(hinge1.getMotor1D(), 1, 2)
-    #oneLegRobotApp.sim().add(speed_controller)
-
-    distance = (b2.getPosition() - b1.getPosition()).length()
-    f1 = agx.Frame()
-    f1.setLocalTranslate(0*MODEL_SCALE, 0*MODEL_SCALE, -distance / 2)
-    f1.setLocalRotate(agx.EulerAngles(0, math.radians(90), 0))
-
-    f2 = agx.Frame()
-    f2.setLocalTranslate(0*MODEL_SCALE, 0*MODEL_SCALE, distance / 2)
-    f2.setLocalRotate(agx.EulerAngles(0, math.radians(90), 0))
-
-    hinge2 = agx.Hinge(b1, f1, b2, f2)
-    oneLegRobotApp.sim().add(hinge2)
-
-    return floor
-
-def build_aft_part(pos1, pos2):
-    size1 = UPPER_LEG_SECTION_SIZE
-    a1 = create_box(pos=pos1, size=size1)
-    #a1 = agx.RigidBody()
-    #a1_geometry = agxCollide.Geometry(agxCollide.Box(size[0]*MODEL_SCALE, size[1]*MODEL_SCALE, size[2]*MODEL_SCALE))
-    #a1.add(a1_geometry)
-    #a1_geometry.setPosition(agx.Vec3(pos1[0], pos1[1], pos1[2]))
-
-    size2 = LOWER_LEG_SECTION_SIZE
-    a2 = create_box(pos=pos2, size=size2)
-
-    return a1, a2
-
-
-    #a2 = agx.RigidBody()
-
-    #size = [0.5, 0.25, 1]
-    #pos1 = [0, 0, 0]
-    #pos2 = [0, 0, -2.5]
-    #a1, a2 = create_bodies(position1=pos1, position2=pos2, size=size)
-
-    #return a1_geometry
-
-# def create_box(pos, size):
-#     #size = [UPPER_LEG_SECTION_WIDTH, UPPER_LEG_SECTION_BREADTH, L_1]
-#     #pos = [0, 0, 0]
-#     rigidBody = agx.RigidBody()
-#     geometry = agxCollide.Geometry(
-#         agxCollide.Box(size[0] * MODEL_SCALE, size[1] * MODEL_SCALE, size[2] * MODEL_SCALE))
-#     rigidBody.add(geometry)
-#     rigidBody.setPosition(agx.Vec3(pos[0], pos[1], pos[2]))
-#
-#     return rigidBody
-
-########################################
-# Our function which creates the scene
-########################################
-def build_scene_old():
-    #floor = agxCollide.Geometry(agxCollide.Box(10*scale, 10*scale, 0.1*scale))
-    #floor.setPosition(0*scale, 0*scale, -4*scale)
-    #oneLegRobotApp.sim().add(floor)
-
-    # Create each and every one of the scenes
-    floor = create_one_leg_robot_scene()
-
-    oneLegRobotApp.app().getSceneDecorator().setEnableShadows(False)
-    oneLegRobotApp.app().setEnableDebugRenderer(True)
-
-    # Arrange camera to be centered on floor
-    oneLegRobotApp.init_camera(eye=agx.Vec3(250*MODEL_SCALE, 250*MODEL_SCALE, 250*MODEL_SCALE), center=floor.getPosition())
+    return rigidBody
